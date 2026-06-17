@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Economy · Level 1 · The Text Purist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Real PDF text extraction, client-side, no backend -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <style>
+    :root {
+      --ink:       #14130F;
+      --ink-2:     #1C1A14;
+      --ink-3:     #23211A;
+      --line:      #332F25;
+      --bone:      #EFE9DC;
+      --bone-dim:  #A39B88;
+      --amber:     #E8A33D;
+      --rust:      #C75B39;
+      --teal:      #5FB8A6;
+      --teal-deep: #2C5E57;
+      --disp: 'Bricolage Grotesque', system-ui, sans-serif;
+      --body: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--body);
+      background: var(--ink);
+      color: var(--bone);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 0 3rem;
+      font-size: 16px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      background-image:
+        radial-gradient(circle at 18% -10%, rgba(232,163,61,.07), transparent 45%),
+        radial-gradient(circle at 92% 8%, rgba(95,184,166,.06), transparent 40%);
+    }
+
+    /* ---- Masthead ---- */
+    .mast {
+      width: 100%;
+      padding: clamp(28px, 5vw, 56px) clamp(20px, 4vw, 56px) 0;
+      max-width: 740px;
+      margin-bottom: 2rem;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: linear-gradient(90deg, var(--line), transparent);
+    }
+
+    .mast h1 {
+      font-family: var(--disp);
+      font-weight: 800;
+      font-size: clamp(38px, 8vw, 78px);
+      line-height: .96;
+      letter-spacing: -.02em;
+      margin-bottom: 12px;
+    }
+
+    .mast h1 .slice { color: var(--amber); }
+
+    .mast .dek {
+      font-size: clamp(15px, 2.1vw, 18px);
+      color: var(--bone-dim);
+      max-width: 46ch;
+    }
+
+    /* ---- Card ---- */
+    .card {
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1.75rem;
+      width: 100%;
+      max-width: 680px;
+      margin-bottom: 1.25rem;
+    }
+
+    .card h2 {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .2em;
+      color: var(--bone-dim);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* ---- Drop zone ---- */
+    .drop-zone {
+      border: 2px dashed var(--line);
+      border-radius: 4px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 180ms ease;
+      position: relative;
+    }
+
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: var(--teal);
+      background: rgba(44,94,87,.12);
+    }
+
+    .drop-zone input {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-icon { font-size: 2.2rem; margin-bottom: .6rem; opacity: .5; }
+    .drop-label { font-size: .95rem; color: var(--bone); margin-bottom: .25rem; }
+    .drop-hint  { font-size: .8rem;  color: var(--bone-dim); }
+
+    /* ---- File list ---- */
+    .file-list { display: flex; flex-direction: column; gap: .5rem; }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      background: var(--ink-3);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: .7rem 1rem;
+    }
+
+    .file-icon { font-size: 1.1rem; flex-shrink: 0; }
+
+    .file-main { flex: 1; min-width: 0; }
+
+    .file-name {
+      font-size: .875rem;
+      font-family: var(--mono);
+      color: var(--bone);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-meta {
+      font-size: .72rem;
+      color: var(--bone-dim);
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
+
+    .file-meta b    { color: var(--teal);  font-weight: 600; }
+    .file-meta .save { color: var(--teal); font-weight: 600; }
+
+    .status {
+      font-size: .68rem;
+      padding: .18rem .55rem;
+      border-radius: 999px;
+      font-weight: 500;
+      flex-shrink: 0;
+      font-family: var(--mono);
+    }
+
+    .status.converting { background: rgba(232,163,61,.12); color: var(--amber); }
+    .status.done       { background: rgba(95,184,166,.12);  color: var(--teal);  }
+    .status.ready      { background: rgba(44,94,87,.2);     color: var(--teal);  }
+    .status.error      { background: rgba(199,91,57,.12);   color: var(--rust);  }
+
+    /* ---- Button ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      padding: .7rem 1.5rem;
+      background: var(--teal);
+      color: var(--ink);
+      border: none;
+      border-radius: 4px;
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 180ms ease;
+      width: 100%;
+      justify-content: center;
+      margin-top: 1.25rem;
+      font-family: var(--body);
+    }
+
+    .btn:hover    { background: var(--teal-deep); color: var(--bone); }
+    .btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ---- Output preview ---- */
+    .output-block {
+      background: var(--ink-3);
+      border: 1px solid rgba(44,94,87,.35);
+      border-radius: 4px;
+      padding: 1.25rem;
+      font-family: var(--mono);
+      font-size: .8rem;
+      color: var(--teal);
+      line-height: 1.7;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* ---- Stats ---- */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: .75rem;
+      margin-bottom: .75rem;
+    }
+
+    .stat-box {
+      background: var(--ink-3);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-size: 1.55rem;
+      font-weight: 700;
+      font-family: var(--mono);
+      color: var(--teal);
+      display: block;
+      line-height: 1.2;
+    }
+
+    .stat-num.green { color: var(--teal); }
+    .stat-num.red   { color: var(--rust); }
+
+    .stat-label {
+      font-size: .68rem;
+      color: var(--bone-dim);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 2px;
+      font-family: var(--mono);
+    }
+
+    .stat-sub {
+      font-size: .65rem;
+      color: var(--bone-dim);
+      font-family: var(--mono);
+      margin-top: 3px;
+      opacity: .7;
+    }
+
+    /* ---- Amp box ---- */
+    .amp {
+      background: rgba(199,91,57,.08);
+      border: 1px solid rgba(199,91,57,.28);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      margin-top: .75rem;
+      font-size: .88rem;
+      line-height: 1.6;
+      color: var(--bone);
+    }
+
+    .amp b   { color: var(--rust); }
+    .amp .big { color: var(--rust); font-weight: 700; font-family: var(--mono); font-size: 1.05rem; }
+
+    /* ---- Cmd block ---- */
+    .cmd-block {
+      background: var(--ink-3);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      font-family: var(--mono);
+      font-size: .78rem;
+      color: var(--teal);
+      line-height: 2;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .cmd-comment { color: var(--bone-dim); }
+
+    /* ---- Controls ---- */
+    .controls-row { display: flex; flex-direction: column; gap: 1.1rem; }
+
+    .control-group { display: flex; flex-direction: column; gap: .5rem; }
+
+    .control-label {
+      font-size: .75rem;
+      color: var(--bone-dim);
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-family: var(--mono);
+      font-size: .72rem;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .control-label .val { color: var(--amber); font-family: var(--mono); font-weight: 600; }
+
+    /* Segmented buttons */
+    .seg {
+      display: flex;
+      gap: .4rem;
+      flex-wrap: wrap;
+    }
+
+    .seg button {
+      flex: 1;
+      min-width: 90px;
+      padding: .55rem .5rem;
+      background: var(--ink-3);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--bone-dim);
+      font-size: .8rem;
+      font-family: var(--body);
+      cursor: pointer;
+      transition: all 150ms ease;
+    }
+
+    .seg button:hover { border-color: var(--teal); color: var(--bone); }
+
+    .seg button.active {
+      background: rgba(232,163,61,.1);
+      border-color: var(--amber);
+      color: var(--amber);
+      font-weight: 600;
+    }
+
+    .seg button .sub {
+      display: block;
+      font-size: .65rem;
+      color: var(--bone-dim);
+      font-family: var(--mono);
+    }
+
+    .seg button.active .sub { color: var(--amber); opacity: .8; }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--amber);
+    }
+
+    /* ---- Calc card ---- */
+    .calc-card .row {
+      display: flex;
+      gap: .6rem;
+      padding: .55rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: .82rem;
+    }
+
+    .calc-card .row:last-child { border-bottom: none; }
+    .calc-card .row .k { color: var(--teal); font-family: var(--mono); font-weight: 600; flex-shrink: 0; width: 90px; }
+    .calc-card .row .v { color: var(--bone-dim); }
+
+    /* ---- Note / misc ---- */
+    .note { font-size: .78rem; color: var(--bone-dim); line-height: 1.6; }
+    .note b { color: var(--bone); font-weight: 600; }
+
+    .section-gap { margin-top: 1rem; }
+
+    .empty-hint { text-align: center; padding: 1.25rem; color: var(--bone-dim); font-size: .85rem; }
+
+    /* ---- Badge ---- */
+    .badge {
+      display: inline-block;
+      font-size: .62rem;
+      font-family: var(--mono);
+      color: var(--amber);
+      border: 1px solid rgba(232,163,61,.25);
+      background: rgba(232,163,61,.08);
+      border-radius: 3px;
+      padding: 1px 6px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* ---- GIF section ---- */
+    .gif-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 1.25rem;
+    }
+
+    .gif-grid figure { margin: 0; }
+
+    .gif-grid img {
+      display: block;
+      width: 100%;
+      border-radius: 3px;
+      border: 1px solid var(--line);
+    }
+
+    .gif-grid figcaption {
+      font-family: var(--mono);
+      font-size: .72rem;
+      color: var(--bone-dim);
+      margin-top: .55rem;
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 500px) {
+      .gif-grid { grid-template-columns: 1fr; }
+      .stats { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; scroll-behavior: auto; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="mast">
+    <div class="eyebrow">Token Economy · Level 01</div>
+    <h1>The Text<br><span class="slice">Purist.</span></h1>
+    <p class="dek">Drop the document format; keep the words. Every PDF page is processed as an image — paste Markdown instead and that overhead disappears.</p>
+  </div>
+
+  <!-- Controls -->
+  <div class="card">
+    <h2>Pricing Assumptions <span class="badge" id="modeBadge">live extraction</span></h2>
+    <div class="controls-row">
+      <div class="control-group">
+        <div class="control-label">Model (input price)</div>
+        <div class="seg" id="modelSeg">
+          <button data-model="opus"   data-rate="5"  class="active">Opus 4.8<span class="sub">$5 / Mtok</span></button>
+          <button data-model="sonnet" data-rate="3"             >Sonnet 4.6<span class="sub">$3 / Mtok</span></button>
+          <button data-model="haiku"  data-rate="1"             >Haiku 4.5<span class="sub">$1 / Mtok</span></button>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">Per-page image cost <span class="val" id="rateVal">2,250 img tok/page</span></div>
+        <div class="seg" id="rateSeg">
+          <button data-rate="1500">Light<span class="sub">1,500</span></button>
+          <button data-rate="2250" class="active">Typical<span class="sub">2,250</span></button>
+          <button data-rate="3000">Dense<span class="sub">3,000</span></button>
+        </div>
+      </div>
+      <div class="control-group">
+        <div class="control-label">Chat turns the doc stays in context <span class="val" id="turnsVal">10×</span></div>
+        <input type="range" id="turnsRange" min="1" max="30" value="10">
+        <div class="note" style="font-size:.72rem">Input tokens are re-sent every turn the document remains in history — cost compounds.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drop Zone -->
+  <div class="card">
+    <h2>Drop PDFs Here</h2>
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="fileInput" accept=".pdf" multiple>
+      <div class="drop-icon">📄</div>
+      <div class="drop-label">Drag &amp; drop PDFs, or click to browse</div>
+      <div class="drop-hint">Text is extracted in your browser — nothing is uploaded anywhere</div>
+    </div>
+    <div class="file-list section-gap" id="fileList">
+      <div class="empty-hint" id="emptyHint">No files yet — drop a PDF to measure the real difference</div>
+    </div>
+    <button class="btn" id="convertBtn" disabled>⚡ Extract &amp; Measure</button>
+  </div>
+
+  <!-- Token + $ Stats -->
+  <div class="card" id="resultsCard" style="display:none">
+    <h2>The Difference</h2>
+    <div class="stats">
+      <div class="stat-box">
+        <span class="stat-num red" id="pdfTokens">—</span>
+        <div class="stat-label">PDF tokens</div>
+        <div class="stat-sub" id="pdfTokensSub">text + page images</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num green" id="mdTokens">—</span>
+        <div class="stat-label">Markdown tokens</div>
+        <div class="stat-sub" id="mdTokensSub">clean text</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num green" id="reduction">—</span>
+        <div class="stat-label">Reduction</div>
+        <div class="stat-sub">fewer tokens</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat-box">
+        <span class="stat-num red" id="pdfCost">—</span>
+        <div class="stat-label">PDF cost</div>
+        <div class="stat-sub">1 pass</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num green" id="mdCost">—</span>
+        <div class="stat-label">Markdown cost</div>
+        <div class="stat-sub">1 pass</div>
+      </div>
+      <div class="stat-box">
+        <span class="stat-num green" id="saved">—</span>
+        <div class="stat-label">Saved</div>
+        <div class="stat-sub">per pass</div>
+      </div>
+    </div>
+    <div class="amp" id="ampBox"></div>
+  </div>
+
+  <!-- Markdown Preview -->
+  <div class="card" id="previewCard" style="display:none">
+    <h2>Extracted Markdown <span class="badge" id="previewName"></span></h2>
+    <div class="output-block" id="mdPreview"></div>
+  </div>
+
+  <!-- How it's calculated -->
+  <div class="card calc-card">
+    <h2>How These Numbers Are Calculated</h2>
+    <div class="row"><span class="k">PDF tokens</span><span class="v">extracted text + (pages × per-page image cost). Anthropic's PDF docs: each page is also rendered as an image at ~1,500–3,000 tokens — that image overhead is exactly what Markdown removes.</span></div>
+    <div class="row"><span class="k">MD tokens</span><span class="v">real extracted text ÷ 4 (Anthropic's ~4-chars-per-token rule of thumb).</span></div>
+    <div class="row"><span class="k">$ cost</span><span class="v">tokens × input rate. Opus 4.8 $5 · Sonnet 4.6 $3 · Haiku 4.5 $1 per million (verified Jun 2026).</span></div>
+    <div class="row"><span class="k">$ basis</span><span class="v">API per-token pricing. On claude.ai (subscription) the same waste shows up as context saturation and usage caps, not a dollar bill.</span></div>
+    <div class="row"><span class="k">Caveat</span><span class="v">Text-token estimate; not a byte-exact tokenizer. The order-of-magnitude gap is the point, and it's real.</span></div>
+  </div>
+
+  <!-- Local Automation -->
+  <div class="card">
+    <h2>🤖 Automate It — Folder Watcher</h2>
+    <p class="note" style="margin-bottom:1rem">Drop this in your Obsidian vault or any inbox folder. It watches for PDFs and auto-converts them to clean <code style="font-family:var(--mono);color:var(--teal)">.md</code> before they ever reach an LLM.</p>
+    <div class="cmd-block"><span class="cmd-comment"># 1. Install once</span>
+pip install watchdog pymupdf4llm
+
+<span class="cmd-comment"># 2. Watch a folder</span>
+python watch_convert.py --folder ~/Obsidian/inbox
+
+<span class="cmd-comment"># 3. Drop a PDF in → token-efficient .md appears beside it</span></div>
+  </div>
+
+  <!-- Meanwhile, your context window… -->
+  <div class="card">
+    <h2>Meanwhile, your context window…</h2>
+    <div class="gif-grid">
+      <figure>
+        <img src="https://media2.giphy.com/media/WDvg3UX4PiHio/giphy.gif"
+             loading="lazy" width="100%"
+             alt="You, uploading a PDF to ask one question.">
+        <figcaption>You, uploading a PDF to ask one question.</figcaption>
+      </figure>
+      <figure>
+        <img src="https://media1.giphy.com/media/CNAhQuDceLwwo/giphy.gif"
+             loading="lazy" width="100%"
+             alt="Claude, processing your 47-page formatting metadata.">
+        <figcaption>Claude, processing your 47-page formatting metadata.</figcaption>
+      </figure>
+      <figure>
+        <img src="https://media4.giphy.com/media/q7kofYLObTVUk/giphy.gif"
+             loading="lazy" width="100%"
+             alt="Your token limit, watching the thread grow.">
+        <figcaption>Your token limit, watching the thread grow.</figcaption>
+      </figure>
+      <figure>
+        <img src="https://media3.giphy.com/media/4mBzKXTeRmEOA/giphy.gif"
+             loading="lazy" width="100%"
+             alt="Same doc, pasted as Markdown.">
+        <figcaption>Same doc, pasted as Markdown.</figcaption>
+      </figure>
+    </div>
+  </div>
+
+  <script>
+    // ---- PDF.js worker ----
+    let PDF_OK = false;
+    try {
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+            PDF_OK = true;
+        }
+    } catch (e) { PDF_OK = false; }
+
+    // ---- State ----
+    const files = [];            // {file, status, pages, text, error}
+    let perPageRate = 2250;
+    let inputRate = 5;           // $/Mtok
+    let turns = 10;
+    const CHARS_PER_TOKEN = 4;
+
+    // ---- Helpers ----
+    const $ = id => document.getElementById(id);
+    function fmtNum(n) { n = Math.round(n); return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n); }
+    function fmtMoney(v) {
+        if (v >= 1) return '$' + v.toFixed(2);
+        if (v >= 0.01) return '$' + v.toFixed(3);
+        return '$' + v.toFixed(5);
+    }
+    function textTokens(text) { return Math.round((text || '').length / CHARS_PER_TOKEN); }
+    function pdfTokensFor(f) { return textTokens(f.text) + (f.pages || 0) * perPageRate; }
+    function tidyToMarkdown(raw) {
+        // light cleanup: collapse whitespace, keep paragraph breaks
+        return raw.replace(/[ \t]+/g, ' ')
+            .replace(/\n{3,}/g, '\n\n')
+            .trim();
+    }
+
+    // ---- Extraction ----
+    async function extractPdf(file) {
+        if (!PDF_OK) throw new Error('offline');
+        const buf = await file.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+        const pages = pdf.numPages;
+        let text = '';
+        for (let p = 1; p <= pages; p++) {
+            const page = await pdf.getPage(p);
+            const content = await page.getTextContent();
+            const strs = content.items.map(it => it.str);
+            text += strs.join(' ') + '\n\n';
+        }
+        return { pages, text: tidyToMarkdown(text) };
+    }
+    // Fallback when PDF.js can't load (e.g. no network at the venue)
+    function estimateOffline(file) {
+        const pages = Math.max(1, Math.round(file.size / 45000)); // ~45KB/page heuristic
+        const approxChars = file.size * 0.18;                     // rough text fraction
+        return { pages, text: '(offline estimate — extracted text unavailable)', _chars: approxChars };
+    }
+
+    // ---- UI wiring ----
+    const dropZone = $('dropZone'), fileInput = $('fileInput'), fileList = $('fileList'),
+        convertBtn = $('convertBtn'), emptyHint = $('emptyHint');
+
+    dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+    dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+    if (!PDF_OK) { $('modeBadge').textContent = 'offline estimate'; $('modeBadge').style.color = 'var(--amber)'; }
+
+    // model selector
+    $('modelSeg').addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        [...$('modelSeg').children].forEach(x => x.classList.remove('active'));
+        b.classList.add('active'); inputRate = +b.dataset.rate; recompute();
+    });
+    // density selector
+    $('rateSeg').addEventListener('click', e => {
+        const b = e.target.closest('button'); if (!b) return;
+        [...$('rateSeg').children].forEach(x => x.classList.remove('active'));
+        b.classList.add('active'); perPageRate = +b.dataset.rate;
+        $('rateVal').textContent = perPageRate.toLocaleString() + ' img tok/page'; recompute();
+    });
+    // turns slider
+    $('turnsRange').addEventListener('input', e => {
+        turns = +e.target.value; $('turnsVal').textContent = turns + '×'; recompute();
+    });
+
+    function handleFiles(incoming) {
+        Array.from(incoming).forEach(f => {
+            if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
+                files.push({ file: f, status: 'ready', pages: 0, text: '', error: null });
+            }
+        });
+        renderList();
+    }
+
+    function renderList() {
+        if (files.length === 0) { emptyHint.style.display = ''; convertBtn.disabled = true; return; }
+        emptyHint.style.display = 'none';
+        fileList.innerHTML = files.map((f, i) => {
+            let meta = '';
+            if (f.status === 'done') {
+                const pdfT = pdfTokensFor(f), mdT = textTokens(f.text);
+                const pct = pdfT > 0 ? Math.round((1 - mdT / pdfT) * 100) : 0;
+                meta = `<div class="file-meta">${f.pages} pages · PDF <b>${fmtNum(pdfT)}</b> → MD <b>${fmtNum(mdT)}</b> tok · <span class="save">−${pct}%</span></div>`;
+            } else {
+                meta = `<div class="file-meta">${(f.file.size / 1024).toFixed(0)} KB</div>`;
+            }
+            const label = f.status === 'ready' ? 'Ready' : f.status === 'converting' ? 'Reading…' : f.status === 'error' ? 'Error' : '✓ Done';
+            return `<div class="file-item">
+  <span class="file-icon">📄</span>
+  <div class="file-main"><div class="file-name">${f.file.name}</div>${meta}</div>
+  <span class="status ${f.status}" id="status-${i}">${label}</span>
+</div>`;
+        }).join('');
+        convertBtn.disabled = false;
+    }
+
+    convertBtn.addEventListener('click', async () => {
+        convertBtn.disabled = true; convertBtn.textContent = '⏳ Reading PDFs…';
+        for (let i = 0; i < files.length; i++) {
+            const f = files[i]; if (f.status === 'done') continue;
+            f.status = 'converting'; renderList();
+            try {
+                let res;
+                if (PDF_OK) { res = await extractPdf(f.file); }
+                else { res = estimateOffline(f.file); res.text = 'x'.repeat(Math.round(res._chars)); }
+                f.pages = res.pages; f.text = res.text; f.status = 'done';
+            } catch (err) {
+                // per-file fallback
+                const res = estimateOffline(f.file);
+                f.pages = res.pages; f.text = 'x'.repeat(Math.round(res._chars || 0)); f.status = 'done';
+            }
+            renderList();
+        }
+        convertBtn.textContent = '✅ Measured — drop more or change assumptions';
+        recompute();
+        showPreview();
+    });
+
+    function recompute() {
+        const done = files.filter(f => f.status === 'done');
+        if (done.length === 0) return;
+        $('resultsCard').style.display = '';
+        let pdfT = 0, mdT = 0;
+        done.forEach(f => { pdfT += pdfTokensFor(f); mdT += textTokens(f.text); });
+        const pct = pdfT > 0 ? Math.round((1 - mdT / pdfT) * 100) : 0;
+        const pdf$ = pdfT / 1e6 * inputRate, md$ = mdT / 1e6 * inputRate, save$ = pdf$ - md$;
+
+        $('pdfTokens').textContent = fmtNum(pdfT);
+        $('mdTokens').textContent = fmtNum(mdT);
+        $('reduction').textContent = '−' + pct + '%';
+        $('pdfTokensSub').textContent = done.reduce((a, f) => a + f.pages, 0) + ' pages';
+        $('mdTokensSub').textContent = 'extracted text';
+        $('pdfCost').textContent = fmtMoney(pdf$);
+        $('mdCost').textContent = fmtMoney(md$);
+        $('saved').textContent = fmtMoney(save$);
+
+        // amplifier: across N turns, and scaled to 100 docs/month
+        const turnSave = save$ * turns;
+        const monthly = save$ / done.length * 100 * turns; // per 100 docs at same turn depth
+        $('ampBox').innerHTML =
+            `Re-sent across <b>${turns} chat turns</b>, the PDF overhead wastes <span class="big">${fmtMoney(turnSave)}</span> on these ${done.length} doc${done.length > 1 ? 's' : ''} alone.<br>` +
+            `At <b>100 docs/month</b>, same depth: <span class="big">${fmtMoney(monthly)}/mo</span> burned on formatting you never asked for.`;
+    }
+
+    function showPreview() {
+        const first = files.find(f => f.status === 'done' && PDF_OK && f.text && !f.text.startsWith('x'));
+        if (!first) return;
+        $('previewCard').style.display = '';
+        $('previewName').textContent = first.file.name;
+        let body = first.text.slice(0, 1800);
+        if (first.text.length > 1800) body += '\n\n…';
+        $('mdPreview').textContent = '# ' + first.file.name.replace(/\.pdf$/i, '') + '\n\n' + body;
+    }
+  </script>
+</body>
+</html>

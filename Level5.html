@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Economy · Level 05 — Agentic Systems &amp; Governance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:       #14130F;
+      --ink-2:     #1C1A14;
+      --ink-3:     #23211A;
+      --line:      #332F25;
+      --bone:      #EFE9DC;
+      --bone-dim:  #A39B88;
+      --amber:     #E8A33D;
+      --rust:      #C75B39;
+      --teal:      #5FB8A6;
+      --teal-deep: #2C5E57;
+      --disp: 'Bricolage Grotesque', system-ui, sans-serif;
+      --body: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+      /* L5 semantic aliases */
+      --ember:      #E07040;
+      --ember-deep: #C25A2B;
+      --halt:       #C84040;
+      --govern:     var(--teal);
+      --rule:       var(--line);
+      --shadow:     0 2px 12px rgba(0,0,0,.4);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      background: var(--ink);
+      color: var(--bone);
+      font-family: var(--disp);
+      font-size: 17px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      background-image:
+        radial-gradient(circle at 18% -10%, rgba(232,163,61,.07), transparent 45%),
+        radial-gradient(circle at 92% 8%, rgba(95,184,166,.06), transparent 40%);
+    }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 26px; }
+
+    .mono { font-family: var(--mono); }
+
+    a { color: var(--amber); }
+
+    /* ---------- masthead ---------- */
+    header.mast {
+      border-bottom: 1px solid var(--line);
+      padding: 22px 0 18px;
+      margin-bottom: 6px;
+    }
+
+    .mast-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .eyebrow::after {
+      content: "";
+      height: 1px;
+      width: 60px;
+      background: var(--line);
+    }
+
+    h1 {
+      font-size: clamp(30px, 5.4vw, 52px);
+      line-height: .98;
+      font-weight: 800;
+      letter-spacing: -.022em;
+      margin: .28em 0 0;
+      color: var(--bone);
+    }
+
+    h1 .lvl { color: var(--amber); }
+
+    .thesis {
+      font-size: clamp(16px, 2.2vw, 19px);
+      max-width: 60ch;
+      margin: 14px 0 0;
+      color: var(--bone-dim);
+      font-family: var(--body);
+    }
+
+    .thesis b {
+      font-weight: 600;
+      color: var(--bone);
+      border-bottom: 2px solid var(--amber);
+      padding-bottom: 1px;
+    }
+
+    /* ---------- lens toggle ---------- */
+    .lens {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      overflow: hidden;
+      font-family: var(--mono);
+      font-size: 12.5px;
+    }
+
+    .lens button {
+      appearance: none;
+      border: 0;
+      background: transparent;
+      color: var(--bone-dim);
+      padding: 8px 14px;
+      cursor: pointer;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      font-weight: 500;
+      font-family: inherit;
+      transition: background .15s, color .15s;
+    }
+
+    .lens button[aria-pressed="true"] {
+      background: var(--amber);
+      color: var(--ink);
+    }
+
+    .lens button:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: 2px;
+    }
+
+    .lens-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+      margin: 0 0 6px;
+      text-align: right;
+    }
+
+    /* ---------- console (signature) ---------- */
+    .console {
+      margin: 30px 0 8px;
+      border: 1px solid var(--line);
+      background: var(--ink-2);
+      border-radius: 4px;
+      box-shadow: var(--shadow);
+    }
+
+    .console-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--ink-3);
+      flex-wrap: wrap;
+    }
+
+    .console-head .ttl {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      color: var(--bone);
+    }
+
+    .console-head .ttl .dot {
+      display: inline-block;
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--teal);
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .console-head .task {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--bone-dim);
+    }
+
+    .console-body {
+      display: grid;
+      grid-template-columns: 268px 1fr 246px;
+      gap: 0;
+    }
+
+    @media(max-width:880px) { .console-body { grid-template-columns: 1fr; } }
+
+    /* levers */
+    .levers {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+    }
+
+    .levers h3, .read h3, .stage h3 {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+      margin: 0 0 12px;
+      font-weight: 600;
+    }
+
+    .lever {
+      margin-bottom: 13px;
+      padding-bottom: 13px;
+      border-bottom: 1px dotted var(--line);
+    }
+
+    .lever:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+
+    .lever .top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .lever .name { font-weight: 600; font-size: 15px; letter-spacing: -.01em; color: var(--bone); }
+    .lever .sub  { font-family: var(--mono); font-size: 11px; color: var(--bone-dim); margin-top: 3px; line-height: 1.4; }
+    .lever .sub .prim { color: var(--amber); }
+
+    /* switch */
+    .sw {
+      appearance: none;
+      width: 46px; height: 24px;
+      border: 1.5px solid var(--line);
+      border-radius: 13px;
+      background: var(--ink-3);
+      position: relative;
+      cursor: pointer;
+      flex: 0 0 auto;
+      transition: background .15s, border-color .15s;
+    }
+
+    .sw::after {
+      content: "";
+      position: absolute;
+      top: 1.5px; left: 2px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--bone-dim);
+      transition: transform .16s ease, background .16s;
+    }
+
+    .sw[aria-checked="true"]       { background: var(--teal-deep); border-color: var(--teal); }
+    .sw[aria-checked="true"]::after { transform: translateX(21px); background: var(--teal); }
+
+    .sw:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+    .sw.danger[aria-checked="false"] {
+      background: rgba(199,91,57,.12);
+      border-color: var(--rust);
+    }
+
+    /* stage */
+    .stage {
+      padding: 16px;
+      border-right: 1px solid var(--line);
+      background: var(--ink-2);
+    }
+
+    .rails { display: flex; flex-direction: column; gap: 9px; }
+
+    .node {
+      border: 1.5px solid var(--line);
+      background: var(--ink-3);
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      border-radius: 3px;
+      transition: border-color .15s, background .15s, box-shadow .15s;
+    }
+
+    .node .tag {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+      width: 62px;
+      flex: 0 0 auto;
+    }
+
+    .node .nm  { font-weight: 600; font-size: 15px; color: var(--bone); }
+
+    .node .meta {
+      margin-left: auto;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--bone-dim);
+      text-align: right;
+    }
+
+    .node.active { border-color: var(--bone); background: var(--ink-2); box-shadow: 3px 3px 0 var(--line); }
+    .node.done   { border-color: var(--teal); }
+    .node.done .tag { color: var(--teal); }
+
+    .node.loop     { border-color: var(--ember); background: rgba(224,112,64,.08); }
+    .node.loop .tag { color: var(--ember-deep); }
+
+    .node.halt     { border-color: var(--halt);  background: rgba(200,64,64,.08); }
+
+    .node.gate.waiting     { border-color: var(--amber); background: rgba(232,163,61,.08); }
+    .node.gate.waiting .tag { color: var(--amber); }
+
+    .node.muscle { border-style: dashed; }
+
+    .gate-actions { display: flex; gap: 8px; margin-left: auto; }
+
+    .gate-actions button {
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      border: 1.5px solid var(--line);
+      background: var(--ink-2);
+      color: var(--bone);
+      padding: 4px 9px;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+
+    .gate-actions button.approve { background: var(--teal); color: var(--ink); border-color: var(--teal); }
+    .gate-actions button.hold    { background: var(--ink-3); color: var(--bone-dim); }
+
+    .gate-actions button:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+
+    /* readout */
+    .read {
+      padding: 16px;
+      background: var(--ink);
+      color: var(--bone);
+    }
+
+    .read h3 { color: var(--bone-dim); }
+
+    .metric { margin-bottom: 14px; }
+
+    .metric .k {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .metric .v {
+      font-family: var(--mono);
+      font-size: 25px;
+      font-weight: 600;
+      line-height: 1.1;
+      margin-top: 2px;
+      color: var(--bone);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .metric .v.ember  { color: #F0905E; }
+    .metric .v.govern { color: #7FC9B5; }
+    .metric .note {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      color: var(--bone-dim);
+      margin-top: 3px;
+    }
+
+    .status {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 8px 10px;
+      border: 1.5px solid var(--line);
+      margin-top: 6px;
+      text-align: center;
+      border-radius: 2px;
+    }
+
+    .status.idle    { color: var(--bone-dim); }
+    .status.run     { color: #F0C97F; border-color: #6a5e3c; }
+    .status.runaway { color: #F0905E; border-color: var(--ember); animation: pulse 1s infinite; }
+    .status.halt    { color: #F08378; border-color: var(--halt); }
+    .status.wait    { color: #F0C97F; border-color: var(--amber); }
+    .status.ok      { color: #7FC9B5; border-color: var(--teal); }
+
+    @keyframes pulse { 50% { opacity: .55; } }
+
+    @media(prefers-reduced-motion:reduce) { .status.runaway { animation: none; } }
+
+    .runbar {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      padding: 13px 16px;
+      border-top: 1px solid var(--line);
+      background: var(--ink-2);
+      flex-wrap: wrap;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .btn {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      font-weight: 600;
+      border: 2px solid var(--bone);
+      background: var(--bone);
+      color: var(--ink);
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 2px;
+      transition: background .15s;
+    }
+
+    .btn:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+    .btn.ghost {
+      background: transparent;
+      color: var(--bone-dim);
+      border-color: var(--line);
+    }
+
+    .btn.ghost:hover { border-color: var(--bone-dim); color: var(--bone); }
+
+    .btn[disabled] { opacity: .4; cursor: not-allowed; }
+
+    .runbar .hint {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--bone-dim);
+    }
+
+    /* ---------- sections ---------- */
+    section { margin: 54px 0; }
+
+    .kicker {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin: 0 0 8px;
+    }
+
+    h2 {
+      font-size: clamp(22px, 3.4vw, 30px);
+      font-weight: 800;
+      letter-spacing: -.02em;
+      margin: 0 0 6px;
+      line-height: 1.05;
+      color: var(--bone);
+    }
+
+    .lede {
+      max-width: 64ch;
+      color: var(--bone-dim);
+      margin: 0 0 22px;
+      font-family: var(--body);
+      font-size: 16px;
+    }
+
+    /* ---------- Governing Agents steps ---------- */
+    .gov-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .gov-step {
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 20px 22px;
+    }
+
+    .gov-step .n {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .18em;
+      color: var(--amber);
+      text-transform: uppercase;
+      margin: 0 0 10px;
+    }
+
+    .gov-step h3 {
+      font-family: var(--disp);
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      color: var(--bone);
+      margin: 0 0 10px;
+    }
+
+    .gov-step p {
+      font-family: var(--body);
+      font-size: 14px;
+      color: var(--bone-dim);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .gov-step code {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--amber);
+      background: rgba(232,163,61,.08);
+      padding: 1px 5px;
+      border-radius: 2px;
+    }
+
+    /* ---------- split (why you care) ---------- */
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    @media(max-width:760px) { .split { grid-template-columns: 1fr; } }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--ink-2);
+      padding: 18px 20px;
+      border-radius: 4px;
+    }
+
+    .card h4 {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      margin: 0 0 4px;
+      color: var(--bone-dim);
+    }
+
+    .card .who {
+      font-size: 13px;
+      color: var(--bone-dim);
+      margin: 0 0 12px;
+      font-family: var(--mono);
+    }
+
+    .card ul  { margin: 0; padding-left: 18px; }
+    .card li  { margin-bottom: 9px; font-family: var(--body); font-size: 15px; color: var(--bone-dim); }
+    .card li b { color: var(--bone); font-weight: 600; }
+
+    .card.own  h4 { color: var(--amber); }
+    .card.arch h4 { color: var(--teal); }
+
+    /* ---------- footer ---------- */
+    footer {
+      border-top: 1px solid var(--line);
+      margin-top: 54px;
+      padding: 22px 0 60px;
+    }
+
+    footer .note {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--bone-dim);
+      max-width: 78ch;
+      line-height: 1.6;
+    }
+
+    footer .note b { color: var(--bone); }
+
+    footer .src { margin-top: 12px; }
+
+    .pill {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      border: 1px solid var(--line);
+      padding: 2px 7px;
+      margin: 3px 4px 0 0;
+      color: var(--bone-dim);
+      border-radius: 2px;
+    }
+
+    .skip { position: absolute; left: -999px; }
+    .skip:focus {
+      left: 8px; top: 8px;
+      background: var(--amber);
+      color: var(--ink);
+      padding: 8px 12px;
+      z-index: 20;
+      font-family: var(--mono);
+    }
+
+    @media(prefers-reduced-motion:reduce) { * { transition: none !important; } }
+  </style>
+</head>
+
+<body data-lens="own">
+  <a href="#console" class="skip mono">Skip to console</a>
+
+  <header class="mast">
+    <div class="wrap">
+      <div class="mast-row">
+        <div>
+          <div class="eyebrow">Token Economy · Level 05 / 05 · Capstone</div>
+          <h1>Agentic Systems &amp; <span class="lvl">Governance</span></h1>
+          <p class="thesis">The orchestration primitives shipped. So the skill is no longer <em>building</em> the agent loop — it's <b>governing what it's allowed to do, spend, and touch</b>.</p>
+        </div>
+        <div>
+          <p class="lens-label">Read this as a…</p>
+          <div class="lens" role="group" aria-label="Audience lens">
+            <button id="lens-own"  aria-pressed="true">Chat User</button>
+            <button id="lens-arch" aria-pressed="false">Architect</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ===================== SIGNATURE: ORCHESTRATION CONSOLE ===================== -->
+    <div class="console" id="console">
+      <div class="console-head">
+        <div class="ttl"><span class="dot" id="head-dot"></span>Orchestration Console</div>
+        <div class="task mono">MISSION&nbsp;//&nbsp;resolve 1 support ticket → draft + send reply</div>
+      </div>
+
+      <div class="console-body">
+        <!-- LEVERS -->
+        <div class="levers">
+          <h3>Governance levers</h3>
+
+          <div class="lever">
+            <div class="top">
+              <span class="name">Stop-guard</span>
+              <button class="sw danger" id="lv-stop" role="switch" aria-checked="false" aria-label="Stop-guard"></button>
+            </div>
+            <div class="sub" data-own>Off = the loop can run all night.</div>
+            <div class="sub" data-arch hidden><span class="prim">maxTurns</span> + SubagentStop hook</div>
+          </div>
+
+          <div class="lever">
+            <div class="top">
+              <span class="name">Scope context</span>
+              <button class="sw danger" id="lv-scope" role="switch" aria-checked="false" aria-label="Scope context"></button>
+            </div>
+            <div class="sub" data-own>Off = each step reads the whole history.</div>
+            <div class="sub" data-arch hidden><span class="prim">subagent isolation</span> + indexed retrieval</div>
+          </div>
+
+          <div class="lever">
+            <div class="top">
+              <span class="name">Route by complexity</span>
+              <button class="sw danger" id="lv-route" role="switch" aria-checked="false" aria-label="Route by complexity"></button>
+            </div>
+            <div class="sub" data-own>Off = Opus does even the trivial steps.</div>
+            <div class="sub" data-arch hidden><span class="prim">model</span> per subagent · Haiku→Sonnet→Opus</div>
+          </div>
+
+          <div class="lever">
+            <div class="top">
+              <span class="name">Confirmation gate</span>
+              <button class="sw" id="lv-gate" role="switch" aria-checked="true" aria-label="Confirmation gate"></button>
+            </div>
+            <div class="sub" data-own>On = a human approves before the email sends.</div>
+            <div class="sub" data-arch hidden><span class="prim">permissionMode</span> + PermissionRequest hook</div>
+          </div>
+
+          <div class="lever">
+            <div class="top">
+              <span class="name">Least privilege</span>
+              <button class="sw" id="lv-priv" role="switch" aria-checked="true" aria-label="Least privilege"></button>
+            </div>
+            <div class="sub" data-own>On = each step gets only the tools it needs.</div>
+            <div class="sub" data-arch hidden><span class="prim">PreToolUse</span> deny · scoped tool list</div>
+          </div>
+        </div>
+
+        <!-- STAGE -->
+        <div class="stage">
+          <h3>Hybrid run &nbsp;—&nbsp; workflow rails · agent muscle</h3>
+          <div class="rails" id="rails"><!-- nodes injected --></div>
+        </div>
+
+        <!-- READOUT -->
+        <div class="read">
+          <h3>Live readout</h3>
+          <div class="metric">
+            <div class="k">Turns</div>
+            <div class="v" id="m-turns">0 <span style="font-size:14px;color:var(--bone-dim)">/ ∞</span></div>
+          </div>
+          <div class="metric">
+            <div class="k">Input tokens</div>
+            <div class="v" id="m-tok">0</div>
+          </div>
+          <div class="metric">
+            <div class="k" id="cost-k">Est. cost · this run</div>
+            <div class="v ember" id="m-cost">$0.00</div>
+            <div class="note" id="m-cost-note">Model mix —</div>
+          </div>
+          <div class="status idle" id="m-status">Idle — press Run mission</div>
+        </div>
+      </div>
+
+      <div class="runbar">
+        <button class="btn" id="run">▶ Run mission</button>
+        <button class="btn ghost" id="reset">Reset</button>
+        <span class="hint" id="hint">Tip: run it with everything off first. Watch it run away.</span>
+      </div>
+    </div>
+
+    <!-- ===================== GOVERNING AGENTS IN PRACTICE ===================== -->
+    <section>
+      <p class="kicker">Governing Agents in Practice</p>
+      <h2>Three moves. Every deployed agent needs all three.</h2>
+      <p class="lede">The console above shows these in action. Here's the recipe — sourced from what ships now, not what you'd build from scratch.</p>
+
+      <div class="gov-steps">
+        <div class="gov-step">
+          <div class="n">01 — Stop the loop</div>
+          <h3>Bound it before it starts</h3>
+          <p>Set <code>maxTurns</code> to a realistic ceiling. Wire a <code>SubagentStop</code> hook to detect convergence and halt early. Add <code>max_budget_usd</code> as the hard financial ceiling. Without these, a Draft↔Verify cycle that never converges runs until it's rate-limited — the overnight-bill scenario. The enforced limit is whatever you set; there is no magic safe number.</p>
+        </div>
+        <div class="gov-step">
+          <div class="n">02 — Scope each subagent</div>
+          <h3>Context is not free at each step</h3>
+          <p>Give each subagent its own window with only the context it needs. Pre-summarise: instead of the customer's full lifetime record, pass the last-30-days summary (~1,500 tokens vs ~50,000). Assign the minimum tool surface for the task. Over-declared tools bloat the payload (see Level 3) and widen blast radius if something goes wrong.</p>
+        </div>
+        <div class="gov-step">
+          <div class="n">03 — Gate irreversible actions</div>
+          <h3>Pause before anything permanent</h3>
+          <p>Before any email sends, payment processes, or record mutates: pause for human approval. Use <code>permissionMode</code> to insert a human-in-the-loop checkpoint. Back it with a <code>PreToolUse</code> hook that can <em>deny</em> the tool call outright — not a politely-worded system prompt the model can drift past. Every approval is an audit trail entry.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== WHY YOU CARE SPLIT ===================== -->
+    <section>
+      <p class="kicker">Why you care</p>
+      <h2>Same architecture, two reasons to fund it.</h2>
+      <div class="split">
+        <div class="card own">
+          <h4>The budget &amp; trust case</h4>
+          <p class="who">Chat users / operators</p>
+          <ul>
+            <li>An ungoverned loop can <b>burn through a budget overnight</b>. Stop-guards turn "shocking bill" into a known ceiling.</li>
+            <li>A confirmation gate is your <b>audit trail</b>: nothing irreversible (emails, payments, record writes) happens without a logged human OK.</li>
+            <li><b>New as of today:</b> on subscription plans, Agent SDK usage now draws from a <em>separate</em> monthly credit pool — a runaway agent no longer silently eats your interactive limits.</li>
+          </ul>
+        </div>
+        <div class="card arch">
+          <h4>The defensive-design case</h4>
+          <p class="who">Coders / architects</p>
+          <ul>
+            <li>Avoid runaway recursion and rate-limit walls: bound the loop with <span class="mono" style="font-size:13px">maxTurns</span> and gate convergence with a <span class="mono" style="font-size:13px">SubagentStop</span> hook.</li>
+            <li>Enforce <b>read-before-write</b>: a <span class="mono" style="font-size:13px">PreToolUse</span> hook validates state before any mutation and can deny the call outright.</li>
+            <li>Give each subagent the <b>minimum tool surface</b> for its task — over-declaring tools both bloats the payload (see Level 3) and widens blast radius.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="note">
+        <b>What's real vs. illustrative.</b> The unit prices driving the cost meter are current published rates — Haiku 4.5 $1/$5, Sonnet 4.6 $3/$15, Opus 4.8 $5/$25 per million in/out — and the cache-hit discount is 0.1× input. The SDK feature names (<span class="mono">maxTurns, max_budget_usd, SubagentStop, PreToolUse, permissionMode, subagents, automatic compaction, total_cost_usd</span>) are real and current. Per-run token volumes are realistic stand-ins, not measured from your stack — swap in your telemetry's real averages before quoting a number on stage. Turn-count "rules" (3–5 good, 10+ decompose) are heuristics, not platform constants; the enforced limit is whatever you set in <span class="mono">maxTurns</span>.
+        <div class="src">
+          <span class="pill">docs: Agent SDK · subagents</span>
+          <span class="pill">docs: hooks · SubagentStop / PreToolUse</span>
+          <span class="pill">docs: Agent SDK credit (15 Jun 2026)</span>
+          <span class="pill">Building Effective Agents</span>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+        "use strict";
+        var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+        /* ---- pricing (real per-M rates) ---- */
+        var RATE = {
+            haiku:  { i: 1,  o: 5,  n: "Haiku 4.5"  },
+            sonnet: { i: 3,  o: 15, n: "Sonnet 4.6" },
+            opus:   { i: 5,  o: 25, n: "Opus 4.8"   }
+        };
+        var MONTHLY = 8000; // tickets/mo for the owner-lens projection
+
+        /* ---- plan: hybrid skeleton (workflow rails) + agent muscle ---- */
+        var PLAN = [
+            { key: "intake",  tag: "workflow", nm: "Intake",      kind: "flow",   out: 200 },
+            { key: "route",   tag: "workflow", nm: "Route",       kind: "flow",   out: 200 },
+            { key: "triage",  tag: "agent",    nm: "Triage",      kind: "muscle", out: 600,  routed: "haiku"  },
+            { key: "retrieve",tag: "agent",    nm: "Retrieve",    kind: "muscle", out: 800,  routed: "haiku"  },
+            { key: "draft",   tag: "agent",    nm: "Draft",       kind: "muscle", out: 900,  routed: "sonnet" },
+            { key: "verify",  tag: "agent",    nm: "Verify",      kind: "muscle", out: 700,  routed: "sonnet" },
+            { key: "confirm", tag: "gate",     nm: "Confirm",     kind: "gate",   out: 80    },
+            { key: "output",  tag: "action",   nm: "Send reply",  kind: "action", out: 400,  routed: "sonnet" }
+        ];
+
+        var lv = { stop: false, scope: false, route: false, gate: true, priv: true };
+        var els = {
+            rails:    document.getElementById("rails"),
+            turns:    document.getElementById("m-turns"),
+            tok:      document.getElementById("m-tok"),
+            cost:     document.getElementById("m-cost"),
+            costNote: document.getElementById("m-cost-note"),
+            costK:    document.getElementById("cost-k"),
+            status:   document.getElementById("m-status"),
+            dot:      document.getElementById("head-dot"),
+            run:      document.getElementById("run"),
+            reset:    document.getElementById("reset"),
+            hint:     document.getElementById("hint")
+        };
+
+        /* ---- switches ---- */
+        function bindSwitch(id, key) {
+            var b = document.getElementById(id);
+            function paint() { b.setAttribute("aria-checked", lv[key] ? "true" : "false"); }
+            b.addEventListener("click", function () { if (running) return; lv[key] = !lv[key]; paint(); resetRun(true); });
+            b.addEventListener("keydown", function (e) { if (e.key === " " || e.key === "Enter") { e.preventDefault(); b.click(); } });
+            paint();
+        }
+        bindSwitch("lv-stop",  "stop");
+        bindSwitch("lv-scope", "scope");
+        bindSwitch("lv-route", "route");
+        bindSwitch("lv-gate",  "gate");
+        bindSwitch("lv-priv",  "priv");
+
+        /* ---- lens ---- */
+        var lensOwn  = document.getElementById("lens-own");
+        var lensArch = document.getElementById("lens-arch");
+        function setLens(which) {
+            document.body.setAttribute("data-lens", which);
+            var own = which === "own";
+            lensOwn.setAttribute("aria-pressed",  own ? "true" : "false");
+            lensArch.setAttribute("aria-pressed", own ? "false" : "true");
+            document.querySelectorAll("[data-own]").forEach(function  (n) { n.hidden = !own; });
+            document.querySelectorAll("[data-arch]").forEach(function (n) { n.hidden = own;  });
+            els.costK.textContent = own ? "Est. cost · this run" : "Est. cost · this run (API)";
+            renderCost();
+        }
+        lensOwn.addEventListener("click",  function () { setLens("own");  });
+        lensArch.addEventListener("click", function () { setLens("arch"); });
+
+        /* ---- token model ---- */
+        function inputTokens(step) {
+            if (step.kind === "flow")  return 1200;
+            if (step.kind === "gate")  return 300;
+            var base = lv.scope ? 1500 : 50000;
+            if (!lv.priv && (step.kind === "muscle" || step.kind === "action")) base += 4200;
+            return base;
+        }
+        function modelFor(step) {
+            if (step.kind === "flow" || step.kind === "gate") return "haiku";
+            return lv.route ? step.routed : "opus";
+        }
+        function stepCost(step) {
+            var m = RATE[modelFor(step)];
+            return (inputTokens(step) / 1e6) * m.i + (step.out / 1e6) * m.o;
+        }
+
+        /* ---- render rails ---- */
+        function buildRails() {
+            els.rails.innerHTML = "";
+            PLAN.forEach(function (s) {
+                var d = document.createElement("div");
+                d.className = "node " + (s.kind === "muscle" ? "muscle " : "") + (s.kind === "gate" ? "gate " : "");
+                d.id = "n-" + s.key;
+                d.innerHTML = '<span class="tag">' + s.tag + '</span><span class="nm">' + s.nm + '</span><span class="meta" id="meta-' + s.key + '"></span>';
+                els.rails.appendChild(d);
+            });
+        }
+        buildRails();
+
+        /* ---- counters ---- */
+        var state = { turns: 0, tok: 0, cost: 0, mix: {} };
+        function fmt(n) { return n.toLocaleString("en-US"); }
+        function renderCounters() {
+            var cap = lv.stop ? "5" : "∞";
+            els.turns.innerHTML = state.turns + ' <span style="font-size:14px;color:var(--bone-dim)">/ ' + cap + '</span>';
+            els.tok.textContent = fmt(state.tok);
+            renderCost();
+        }
+        function renderCost() {
+            els.cost.textContent = "$" + state.cost.toFixed(2);
+            var parts = [];
+            Object.keys(state.mix).forEach(function (k) { if (state.mix[k]) parts.push(RATE[k].n + "×" + state.mix[k]); });
+            var mixStr = parts.length ? parts.join(" · ") : "—";
+            if (document.body.getAttribute("data-lens") === "own") {
+                var proj = state.cost * MONTHLY;
+                els.costNote.textContent = "≈ $" + Math.round(proj).toLocaleString("en-US") + " / mo at " + fmt(MONTHLY) + " tickets";
+            } else {
+                els.costNote.textContent = mixStr;
+            }
+        }
+
+        function setStatus(cls, txt) {
+            els.status.className = "status " + cls;
+            els.status.textContent = txt;
+            els.dot.style.background =
+                cls === "ok"      ? "var(--teal)" :
+                cls === "runaway" || cls === "halt" ? "var(--ember)" :
+                cls === "wait"    ? "var(--amber)" : "var(--teal)";
+        }
+
+        /* ---- run engine ---- */
+        var running = false, timer = null, awaiting = false;
+        function clearMarks() {
+            PLAN.forEach(function (s) {
+                var n = document.getElementById("n-" + s.key);
+                n.className = "node " + (s.kind === "muscle" ? "muscle " : "") + (s.kind === "gate" ? "gate " : "");
+                document.getElementById("meta-" + s.key).textContent = "";
+                var ga = n.querySelector(".gate-actions"); if (ga) ga.remove();
+            });
+        }
+        function resetRun(keepLevers) {
+            if (timer) { clearTimeout(timer); timer = null; }
+            running = false; awaiting = false;
+            state = { turns: 0, tok: 0, cost: 0, mix: {} };
+            clearMarks(); renderCounters();
+            setStatus("idle", "Idle — press Run mission");
+            els.run.disabled = false; els.run.textContent = "▶ Run mission";
+            els.hint.textContent = allOff()
+                ? "Everything's off. This run will not end well — that's the point."
+                : "Governed run: bounded, routed, gated.";
+        }
+        function allOff() { return !lv.stop && !lv.scope && !lv.route; }
+
+        function applyStep(s, looped) {
+            var m = modelFor(s);
+            state.tok  += inputTokens(s);
+            state.cost += stepCost(s);
+            state.mix[m] = (state.mix[m] || 0) + 1;
+            state.turns++;
+            var n = document.getElementById("n-" + s.key);
+            n.classList.remove("active");
+            n.classList.add(looped ? "loop" : "done");
+            document.getElementById("meta-" + s.key).textContent =
+                (s.kind === "flow" ? "" : RATE[m].n + " · ") + fmt(inputTokens(s)) + "t";
+            renderCounters();
+        }
+        function activate(s) { var n = document.getElementById("n-" + s.key); n.classList.add("active"); }
+
+        function delay() { return reduce ? 0 : 560; }
+
+        function runMission() {
+            resetRun(true);
+            running = true; els.run.disabled = true; els.run.textContent = "● Running…";
+            setStatus("run", "Dispatching subagents…");
+            var i = 0, loopCount = 0, inLoop = false;
+
+            function tick() {
+                // ----- runaway path: no stop-guard, Draft<->Verify never converges -----
+                if (inLoop) {
+                    var d = PLAN[4], v = PLAN[5];
+                    activate(d);
+                    timer = setTimeout(function () {
+                        applyStep(d, true);
+                        activate(v);
+                        timer = setTimeout(function () {
+                            applyStep(v, true);
+                            loopCount++;
+                            setStatus("runaway", "Runaway loop — no stop-guard (" + state.turns + " turns)");
+                            els.hint.textContent = "Verify keeps rejecting Draft. Nothing bounds it.";
+                            if (state.turns >= 40) {
+                                var vn = document.getElementById("n-verify");
+                                vn.classList.remove("loop"); vn.classList.add("halt");
+                                document.getElementById("meta-verify").textContent = "429";
+                                setStatus("halt", "Rate-limited · 429 — agent never finished");
+                                els.hint.textContent = "This is the overnight-bill story. Flip Stop-guard on and run again.";
+                                running = false; els.run.disabled = false; els.run.textContent = "▶ Run mission";
+                                return;
+                            }
+                            timer = setTimeout(tick, delay());
+                        }, delay());
+                    }, delay());
+                    return;
+                }
+
+                if (i >= PLAN.length) { finish(); return; }
+                var s = PLAN[i];
+
+                // ----- confirmation gate -----
+                if (s.kind === "gate") {
+                    if (lv.gate) {
+                        var n = document.getElementById("n-confirm");
+                        n.classList.add("waiting");
+                        document.getElementById("meta-confirm").textContent = "";
+                        var ga = document.createElement("span"); ga.className = "gate-actions";
+                        ga.innerHTML = '<button class="approve">Approve</button><button class="hold">Hold</button>';
+                        n.appendChild(ga);
+                        setStatus("wait", "Awaiting human approval");
+                        els.hint.textContent = "The irreversible step is paused. You decide.";
+                        awaiting = true;
+                        ga.querySelector(".approve").addEventListener("click", function () {
+                            if (!awaiting) return; awaiting = false; ga.remove();
+                            n.classList.remove("waiting"); n.classList.add("done");
+                            applyStep(s, false); i++; setStatus("run", "Approved — sending…");
+                            timer = setTimeout(tick, delay());
+                        });
+                        ga.querySelector(".hold").addEventListener("click", function () {
+                            if (!awaiting) return; awaiting = false; ga.remove();
+                            n.classList.remove("waiting"); n.classList.add("done");
+                            document.getElementById("meta-confirm").textContent = "held";
+                            setStatus("ok", "Held by human — nothing sent");
+                            els.hint.textContent = "No email left the building. That's the gate doing its job.";
+                            running = false; els.run.disabled = false; els.run.textContent = "▶ Run mission";
+                        });
+                        return;
+                    } else {
+                        activate(s);
+                        timer = setTimeout(function () {
+                            applyStep(s, false);
+                            document.getElementById("meta-confirm").textContent = "auto";
+                            i++; tick();
+                        }, delay());
+                        return;
+                    }
+                }
+
+                // ----- normal step -----
+                activate(s);
+                timer = setTimeout(function () {
+                    applyStep(s, false);
+                    if (s.key === "verify" && !lv.stop) { inLoop = true; timer = setTimeout(tick, delay()); return; }
+                    if (s.key === "verify" && lv.stop)  { els.hint.textContent = "maxTurns held the execute phase to 5. Converged."; }
+                    i++;
+                    timer = setTimeout(tick, delay());
+                }, delay());
+            }
+
+            function finish() {
+                var sent = lv.gate ? "sent (approved)" : "sent UNREVIEWED";
+                document.getElementById("meta-output").textContent = lv.gate ? "sent ✓" : "sent ⚠";
+                setStatus("ok", "Resolved — reply " + sent);
+                if (!lv.gate) els.hint.textContent = "It worked — but an unreviewed email just went out. Note the risk.";
+                running = false; els.run.disabled = false; els.run.textContent = "▶ Run mission";
+            }
+
+            timer = setTimeout(tick, delay());
+        }
+
+        els.run.addEventListener("click",   function () { if (!running) runMission(); });
+        els.reset.addEventListener("click", function () { resetRun(true); });
+
+        setLens("own");
+        resetRun(true);
+    })();
+  </script>
+</body>
+</html>

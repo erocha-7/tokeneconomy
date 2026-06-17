@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Token Economy</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:      #14130F;
+      --ink-2:    #1C1A14;
+      --ink-3:    #23211A;
+      --line:     #332F25;
+      --bone:     #EFE9DC;
+      --bone-dim: #A39B88;
+      --amber:    #E8A33D;
+      --rust:     #C75B39;
+      --teal:     #5FB8A6;
+      --teal-deep:#2C5E57;
+      --disp: 'Bricolage Grotesque', system-ui, sans-serif;
+      --body: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', ui-monospace, monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--ink);
+      color: var(--bone);
+      font-family: var(--body);
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 18% -10%, rgba(232,163,61,.07), transparent 45%),
+        radial-gradient(circle at 92% 8%,  rgba(95,184,166,.06), transparent 40%);
+    }
+
+    /* ---- Shell header ---- */
+    .shell-hd {
+      flex-shrink: 0;
+      padding: clamp(14px, 2.5vw, 26px) clamp(16px, 4vw, 52px) 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .shell-hd-inner {
+      padding-bottom: 14px;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .32em;
+      text-transform: uppercase;
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .eyebrow::after {
+      content: "";
+      height: 1px;
+      width: 60px;
+      background: var(--line);
+    }
+
+    .shell-title {
+      font-family: var(--disp);
+      font-weight: 800;
+      font-size: clamp(22px, 4vw, 40px);
+      letter-spacing: -.02em;
+      line-height: 1;
+      color: var(--bone);
+    }
+
+    .shell-tagline {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--bone-dim);
+      letter-spacing: .08em;
+      margin-top: 5px;
+    }
+
+    /* ---- Tab bar ---- */
+    .tablist {
+      display: flex;
+      flex-shrink: 0;
+      padding: 0 clamp(16px, 4vw, 52px);
+      border-bottom: 1px solid var(--line);
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .tablist::-webkit-scrollbar { display: none; }
+
+    .tab-btn {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      background: transparent;
+      color: var(--bone-dim);
+      border: 0;
+      border-bottom: 2px solid transparent;
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: color .15s, border-color .15s;
+      white-space: nowrap;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn:hover { color: var(--bone); }
+
+    .tab-btn[aria-selected="true"] {
+      color: var(--amber);
+      border-bottom-color: var(--amber);
+    }
+
+    .tab-btn:focus-visible {
+      outline: 2px solid var(--teal);
+      outline-offset: -2px;
+      border-radius: 2px;
+    }
+
+    /* ---- Content area ---- */
+    .tab-content {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+    }
+
+    .tab-panel {
+      display: none;
+      height: 100%;
+    }
+
+    .tab-panel.active { display: block; }
+
+    .tab-panel iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
+    /* ---- Footer ---- */
+    .shell-ft {
+      flex-shrink: 0;
+      padding: 9px clamp(16px, 4vw, 52px);
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--bone-dim);
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="shell-hd">
+    <div class="shell-hd-inner">
+      <div class="eyebrow">Token Economy</div>
+      <h1 class="shell-title">The Token Economy</h1>
+      <p class="shell-tagline">Five levels. One session.</p>
+    </div>
+  </div>
+
+  <div class="tablist" role="tablist" aria-label="Token Economy levels" id="tablist">
+    <button class="tab-btn" role="tab" id="tab-1" aria-selected="true"  aria-controls="panel-1">1 · Ingestion</button>
+    <button class="tab-btn" role="tab" id="tab-2" aria-selected="false" aria-controls="panel-2">2 · Threads</button>
+    <button class="tab-btn" role="tab" id="tab-3" aria-selected="false" aria-controls="panel-3">3 · Workspace</button>
+    <button class="tab-btn" role="tab" id="tab-4" aria-selected="false" aria-controls="panel-4">4 · Cost</button>
+    <button class="tab-btn" role="tab" id="tab-5" aria-selected="false" aria-controls="panel-5">5 · Agents</button>
+  </div>
+
+  <div class="tab-content">
+    <div class="tab-panel active" role="tabpanel" id="panel-1" aria-labelledby="tab-1">
+      <iframe id="iframe-1" src="Level1.html" title="Level 1 · Ingestion"></iframe>
+    </div>
+    <div class="tab-panel" role="tabpanel" id="panel-2" aria-labelledby="tab-2"></div>
+    <div class="tab-panel" role="tabpanel" id="panel-3" aria-labelledby="tab-3"></div>
+    <div class="tab-panel" role="tabpanel" id="panel-4" aria-labelledby="tab-4"></div>
+    <div class="tab-panel" role="tabpanel" id="panel-5" aria-labelledby="tab-5"></div>
+  </div>
+
+  <footer class="shell-ft">The Token Economy · verified Jun 2026</footer>
+
+  <script>
+    (function () {
+      var SRCS = ['Level1.html','Level2.html','Level3.html','Level4.html','Level5.html'];
+      var tabs   = Array.from(document.querySelectorAll('[role="tab"]'));
+      var panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+
+      function activate(idx) {
+        tabs.forEach(function (t, i) {
+          var active = i === idx;
+          t.setAttribute('aria-selected', active ? 'true' : 'false');
+          panels[i].classList.toggle('active', active);
+          if (active && !panels[i].querySelector('iframe')) {
+            var fr = document.createElement('iframe');
+            fr.src   = SRCS[i];
+            fr.title = tabs[i].textContent.trim();
+            fr.style.cssText = 'width:100%;height:100%;border:0;display:block';
+            panels[i].appendChild(fr);
+          }
+        });
+      }
+
+      tabs.forEach(function (tab, i) {
+        tab.addEventListener('click', function () { activate(i); });
+      });
+
+      document.getElementById('tablist').addEventListener('keydown', function (e) {
+        var cur  = tabs.findIndex(function (t) { return t.getAttribute('aria-selected') === 'true'; });
+        var next = cur;
+        if      (e.key === 'ArrowRight') next = (cur + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft')  next = (cur - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home')       next = 0;
+        else if (e.key === 'End')        next = tabs.length - 1;
+        else return;
+        e.preventDefault();
+        activate(next);
+        tabs[next].focus();
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Token Economy · Level 3 · Workspace &amp; Tool Hygiene</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:       #14130F;
+      --ink-2:     #1C1A14;
+      --ink-3:     #23211A;
+      --line:      #332F25;
+      --bone:      #EFE9DC;
+      --bone-dim:  #A39B88;
+      --amber:     #E8A33D;
+      --rust:      #C75B39;
+      --teal:      #5FB8A6;
+      --teal-deep: #2C5E57;
+      --disp: 'Bricolage Grotesque', system-ui, sans-serif;
+      --body: 'IBM Plex Sans', system-ui, sans-serif;
+      --mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+      /* L3 semantic aliases */
+      --tax:       var(--amber);
+      --tax-hot:   var(--rust);
+      --manual:    var(--rust);
+      --reclaim:   var(--teal);
+      --reclaim-deep: var(--teal-deep);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      background: var(--ink);
+      color: var(--bone);
+      font-family: var(--body);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      background-image:
+        radial-gradient(circle at 18% -10%, rgba(232,163,61,.06), transparent 42%),
+        radial-gradient(circle at 92% 6%, rgba(95,184,166,.05), transparent 40%);
+      background-attachment: fixed;
+    }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 34px 26px 80px; }
+
+    /* ---------- header ---------- */
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .32em;
+      color: var(--amber);
+      text-transform: uppercase;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .eyebrow::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: linear-gradient(90deg, var(--line), transparent);
+    }
+
+    h1 {
+      font-family: var(--disp);
+      font-weight: 800;
+      font-size: clamp(40px, 7vw, 76px);
+      line-height: .96;
+      letter-spacing: -.02em;
+      margin: 16px 0 10px;
+      color: var(--bone);
+    }
+
+    h1 .em { color: var(--amber); }
+
+    .lede {
+      font-size: clamp(15px, 2.1vw, 18.5px);
+      color: var(--bone-dim);
+      max-width: 62ch;
+      margin: 0 0 26px;
+    }
+
+    .lede b { color: var(--bone); font-weight: 500; }
+
+    /* ---------- lens toggle ---------- */
+    .lens {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .lens-label {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      letter-spacing: .16em;
+      color: var(--bone-dim);
+      text-transform: uppercase;
+    }
+
+    .seg {
+      display: inline-flex;
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .seg button {
+      font-family: var(--mono);
+      font-size: 13px;
+      letter-spacing: .02em;
+      background: transparent;
+      color: var(--bone-dim);
+      border: 0;
+      border-radius: 7px;
+      padding: 9px 18px;
+      cursor: pointer;
+      transition: .18s;
+      font-weight: 500;
+    }
+
+    .seg button:hover { color: var(--bone); }
+
+    .seg button.on {
+      background: var(--ink-3);
+      color: var(--bone);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .seg button[data-lens="architect"].on { color: var(--teal); }
+    .seg button[data-lens="business"].on  { color: var(--amber); }
+
+    /* ---------- meter (hero) ---------- */
+    .meter {
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 26px 28px 28px;
+      margin-bottom: 26px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .meter-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .big-read { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+
+    .big-num {
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: clamp(46px, 8vw, 72px);
+      line-height: 1;
+      color: var(--bone);
+      letter-spacing: -.01em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .big-sub { font-family: var(--mono); font-size: 13px; color: var(--bone-dim); letter-spacing: .03em; }
+
+    .pct-chip {
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 15px;
+      padding: 8px 14px;
+      border-radius: 9px;
+      background: rgba(232,163,61,.1);
+      color: var(--amber);
+      border: 1px solid rgba(232,163,61,.28);
+      white-space: nowrap;
+      transition: .25s;
+    }
+
+    .pct-chip.warn {
+      background: rgba(199,91,57,.12);
+      color: var(--rust);
+      border-color: rgba(199,91,57,.35);
+    }
+
+    /* track */
+    .track {
+      position: relative;
+      height: 48px;
+      border-radius: 10px;
+      background: var(--ink-3);
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .seg-fill {
+      position: absolute;
+      top: 0; bottom: 0; left: 0;
+      transition: width .55s cubic-bezier(.4,0,.2,1), left .55s cubic-bezier(.4,0,.2,1);
+    }
+
+    .seg-tools  { background: repeating-linear-gradient(135deg, var(--amber), var(--amber) 9px, #c07c25 9px, #c07c25 18px); }
+    .seg-manual { background: repeating-linear-gradient(135deg, var(--rust), var(--rust) 9px, #a84a35 9px, #a84a35 18px); }
+
+    .baseline-mark {
+      position: absolute;
+      top: -4px; bottom: -4px;
+      width: 2px;
+      background: var(--bone);
+      opacity: .5;
+      transition: left .55s cubic-bezier(.4,0,.2,1);
+      z-index: 3;
+    }
+
+    .baseline-mark::after {
+      content: "was here";
+      position: absolute;
+      top: -19px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: .04em;
+      color: var(--bone);
+      opacity: .65;
+      white-space: nowrap;
+    }
+
+    .tick { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--line); z-index: 1; }
+
+    .track-scale { display: flex; justify-content: space-between; margin-top: 9px; }
+
+    .track-scale span {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--bone-dim);
+      letter-spacing: .04em;
+    }
+
+    .legend { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 18px; }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--bone-dim);
+    }
+
+    .swatch { width: 13px; height: 13px; border-radius: 3px; flex: none; }
+    .sw-tools  { background: var(--amber); }
+    .sw-manual { background: var(--rust); }
+    .sw-free   { background: var(--ink-2); border: 1px solid var(--line); }
+
+    /* ---------- grid ---------- */
+    .cols { display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; margin-bottom: 26px; }
+
+    @media(max-width:820px) { .cols { grid-template-columns: 1fr; } }
+
+    .card {
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px 22px 8px;
+    }
+
+    .card h3 {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+      font-weight: 500;
+      margin: 0 0 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card h3 .tag { margin-left: auto; color: var(--bone-dim); font-size: 11px; letter-spacing: .1em; }
+
+    /* toggle rows */
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--ink-3);
+      cursor: pointer;
+    }
+
+    .row:last-child { border-bottom: 0; }
+
+    .sw {
+      width: 42px; height: 24px;
+      border-radius: 20px;
+      background: var(--ink-3);
+      border: 1px solid var(--line);
+      position: relative;
+      flex: none;
+      transition: .2s;
+    }
+
+    .sw::after {
+      content: "";
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: var(--bone-dim);
+      transition: .2s;
+    }
+
+    .row.on .sw { background: rgba(232,163,61,.2); border-color: var(--amber); }
+    .row.on .sw::after { left: 20px; background: var(--amber); }
+
+    .row.manual.on .sw { background: rgba(199,91,57,.2); border-color: var(--rust); }
+    .row.manual.on .sw::after { background: var(--rust); }
+
+    .row .name { flex: 1; }
+    .row .name b   { font-weight: 500; color: var(--bone); display: block; font-size: 14.5px; }
+    .row .name small { color: var(--bone-dim); font-size: 12px; font-family: var(--mono); }
+
+    .row .cost {
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--bone-dim);
+      white-space: nowrap;
+    }
+
+    .row.on .cost        { color: var(--amber); }
+    .row.manual.on .cost { color: var(--rust); }
+    .row.dim { opacity: .5; }
+    .row.dim .cost { text-decoration: line-through; }
+
+    .card-note {
+      font-family: var(--mono);
+      font-size: 11.5px;
+      color: var(--bone-dim);
+      padding: 14px 0 16px;
+      line-height: 1.6;
+    }
+
+    /* consequence panel */
+    .conseq {
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .conseq h3 {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+      font-weight: 500;
+      margin: 0 0 16px;
+    }
+
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+
+    .stat {
+      background: var(--ink-3);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 13px 14px;
+    }
+
+    .stat .k {
+      font-family: var(--mono);
+      font-size: 10.5px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .stat .v {
+      font-family: var(--mono);
+      font-weight: 600;
+      font-size: 23px;
+      color: var(--bone);
+      margin-top: 5px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat .v.good { color: var(--teal); }
+    .stat .v.bad  { color: var(--rust); }
+
+    .bullets { list-style: none; }
+
+    .bullets li {
+      display: flex;
+      gap: 11px;
+      padding: 9px 0;
+      font-size: 14px;
+      color: var(--bone);
+      border-top: 1px solid var(--ink-3);
+    }
+
+    .bullets li::before {
+      content: "";
+      flex: none;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--amber);
+      margin-top: 8px;
+    }
+
+    .bullets li.good::before { background: var(--teal); }
+    .bullets li b { font-weight: 500; }
+
+    /* ---------- fix bar ---------- */
+    .fix {
+      background: linear-gradient(180deg, var(--ink-2), var(--ink-3));
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 24px 26px;
+      margin-bottom: 30px;
+    }
+
+    .fix-head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+
+    .fix-head .label {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+
+    .fix h2 {
+      font-family: var(--disp);
+      font-weight: 700;
+      font-size: 21px;
+      margin: 0 0 18px;
+      color: var(--bone);
+    }
+
+    .fix-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    @media(max-width:680px) { .fix-actions { grid-template-columns: 1fr; } }
+
+    .action {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      text-align: left;
+      cursor: pointer;
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px 18px;
+      transition: .2s;
+      color: inherit;
+      font: inherit;
+    }
+
+    .action:hover   { border-color: var(--teal-deep); }
+    .action.on      { border-color: var(--teal); background: rgba(95,184,166,.07); }
+
+    .action .ck {
+      width: 24px; height: 24px;
+      border-radius: 7px;
+      border: 1px solid var(--line);
+      flex: none;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: transparent;
+      transition: .2s;
+    }
+
+    .action.on .ck { background: var(--teal); border-color: var(--teal); color: var(--ink); }
+
+    .action .txt b     { display: block; font-family: var(--disp); font-weight: 600; font-size: 15.5px; color: var(--bone); margin-bottom: 3px; }
+    .action .txt small { color: var(--bone-dim); font-size: 12.5px; line-height: 1.5; display: block; }
+    .action .txt .src  { font-family: var(--mono); color: var(--teal); font-size: 11px; }
+
+    .reclaim-bar {
+      margin-top: 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-family: var(--mono);
+      font-size: 13.5px;
+      color: var(--bone-dim);
+    }
+
+    .reclaim-bar .num { color: var(--teal); font-weight: 600; font-size: 18px; }
+
+    /* ---------- takeaway ---------- */
+    .takeaway { border-top: 1px solid var(--line); padding-top: 34px; }
+
+    .takeaway .eyebrow { margin-bottom: 18px; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+
+    @media(max-width:760px) { .steps { grid-template-columns: 1fr; } }
+
+    .step {
+      background: var(--ink-2);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+    }
+
+    .step .n { font-family: var(--mono); font-size: 13px; color: var(--amber); font-weight: 600; letter-spacing: .1em; }
+
+    .step h4 { font-family: var(--disp); font-weight: 600; font-size: 17px; margin: 10px 0 8px; color: var(--bone); }
+
+    .step p  { margin: 0; font-size: 13.5px; color: var(--bone-dim); line-height: 1.6; }
+    .step p b { color: var(--bone); font-weight: 500; }
+
+    .step.auto { border-color: var(--teal-deep); }
+    .step.auto .n { color: var(--teal); }
+
+    .foot {
+      margin-top: 34px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--bone-dim);
+      line-height: 1.7;
+      border-top: 1px solid var(--line);
+      padding-top: 18px;
+    }
+
+    .foot b { color: var(--bone-dim); }
+
+    a.hidden-skip { position: absolute; left: -9999px; }
+
+    *:focus-visible { outline: 2px solid var(--teal); outline-offset: 3px; border-radius: 6px; }
+
+    @media(prefers-reduced-motion:reduce) { * { transition: none !important; } }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="eyebrow">Token Economy · Level 03</div>
+    <h1>The <span class="em">silent tax</span></h1>
+    <p class="lede">Every connector you leave switched on is loaded into the context window <b>before you type a single word</b>. Toggle the stack below and watch how much of your working memory is already gone.</p>
+
+    <div class="lens">
+      <span class="lens-label">Read it as a</span>
+      <div class="seg" role="tablist" aria-label="Audience lens">
+        <button data-lens="business" class="on" role="tab" aria-selected="true">Chat User</button>
+        <button data-lens="architect" role="tab" aria-selected="false">Architect</button>
+      </div>
+    </div>
+
+    <!-- HERO METER -->
+    <div class="meter">
+      <div class="meter-top">
+        <div class="big-read">
+          <div>
+            <div class="big-num" id="bigNum">0</div>
+            <div class="big-sub">tokens spent before your first prompt · of 200,000</div>
+          </div>
+        </div>
+        <div class="pct-chip" id="pctChip">0% gone</div>
+      </div>
+
+      <div class="track" id="track">
+        <div class="tick" style="left:25%"></div>
+        <div class="tick" style="left:50%"></div>
+        <div class="tick" style="left:75%"></div>
+        <div class="seg-fill seg-tools"  id="segTools"  style="width:0"></div>
+        <div class="seg-fill seg-manual" id="segManual" style="width:0;left:0"></div>
+        <div class="baseline-mark" id="baseMark" style="left:0;display:none"></div>
+      </div>
+      <div class="track-scale"><span>0</span><span>50K</span><span>100K</span><span>150K</span><span>200K window</span></div>
+
+      <div class="legend">
+        <span><i class="swatch sw-tools"></i> Connector / tool definitions</span>
+        <span><i class="swatch sw-manual"></i> Stale workspace context</span>
+        <span><i class="swatch sw-free"></i> Room left for your actual work</span>
+      </div>
+    </div>
+
+    <!-- CONTROLS -->
+    <div class="cols">
+      <div class="card">
+        <h3>Connected stack <span class="tag">flip to taste</span></h3>
+        <div id="connectorRows"></div>
+        <div class="card-note" id="connNote"></div>
+      </div>
+
+      <div class="conseq">
+        <h3 id="conseqTitle">What this costs you</h3>
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="k" id="statK1">Context gone</div>
+            <div class="v" id="statV1">0%</div>
+          </div>
+          <div class="stat">
+            <div class="k" id="statK2">Room left</div>
+            <div class="v good" id="statV2">200,000</div>
+          </div>
+        </div>
+        <ul class="bullets" id="bullets"></ul>
+      </div>
+    </div>
+
+    <!-- FIX -->
+    <div class="fix">
+      <div class="fix-head"><span class="label">The fix</span></div>
+      <h2>Two levers — one the platform pulls for you, one you still own.</h2>
+      <div class="fix-actions">
+        <button class="action" id="actSearch" aria-pressed="false">
+          <span class="ck">✓</span>
+          <span class="txt">
+            <b>Enable Tool Search</b>
+            <small>Tool definitions load on demand instead of all upfront — the whole connector block collapses to a ~500-token lookup. <span class="src">GA, default-on in Claude Code · ~85% lighter.</span></small>
+          </span>
+        </button>
+        <button class="action" id="actPrune" aria-pressed="false">
+          <span class="ck">✓</span>
+          <span class="txt">
+            <b>Prune the workspace</b>
+            <small>Drop the stale reference files; replace the 40-turn thread with a short summary anchor. <span class="src" style="color:var(--rust)">Not automated — this part is on you.</span></small>
+          </span>
+        </button>
+      </div>
+      <div class="reclaim-bar">
+        <span>Context reclaimed:</span>
+        <span class="num" id="reclaimNum">0</span>
+        <span id="reclaimPct">tokens · 0% of the window handed back</span>
+      </div>
+    </div>
+
+    <!-- TAKEAWAY -->
+    <div class="takeaway">
+      <div class="eyebrow">The hygienist's checklist</div>
+      <div class="steps">
+        <div class="step">
+          <div class="n">01 — manual</div>
+          <h4>Audit before you prompt</h4>
+          <p>One clean project per task. Load the <b>one</b> file the job needs, not the whole shared drive. Default state is a cost.</p>
+        </div>
+        <div class="step auto">
+          <div class="n">02 — automated</div>
+          <h4>Let Tool Search prune definitions</h4>
+          <p>The platform now lazy-loads tools. <b>Don't rebuild this</b> — know it's there, and stop fearing big tool libraries.</p>
+        </div>
+        <div class="step">
+          <div class="n">03 — manual</div>
+          <h4>Own the rest</h4>
+          <p>Stale files and sprawling threads aren't auto-pruned. That hygiene is still <b>your</b> job, every session.</p>
+        </div>
+      </div>
+
+      <div class="foot">
+        <b>Sourcing.</b> GitHub MCP ≈ 55K tokens and Jira ≈ 17K are Anthropic's published figures; Tool Search (≈85% reduction, ~500-token overhead, GA &amp; default-on) and the 79.5%→88.1% tool-selection accuracy lift are from Anthropic engineering, 2025–26.<br>
+        Other connector and workspace token values are illustrative, in the same realistic range. A 200,000-token window is assumed. Light setups (1–2 connectors) feel little of this — the tax scales with the stack.
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const WINDOW = 200000;
+
+    const connectors = [
+        { id: 'github', name: 'GitHub', meta: '93 tools · sourced', tokens: 55000, on: true },
+        { id: 'jira', name: 'Jira', meta: 'sourced', tokens: 17000, on: true },
+        { id: 'salesforce', name: 'Salesforce', meta: 'illustrative', tokens: 20000, on: false },
+        { id: 'drive', name: 'Google Drive', meta: 'illustrative', tokens: 12000, on: false },
+        { id: 'slack', name: 'Slack', meta: 'illustrative', tokens: 8000, on: false },
+        { id: 'notion', name: 'Notion', meta: 'illustrative', tokens: 6000, on: false },
+    ];
+    const manual = [
+        { id: 'files', name: 'Stale project files', meta: 'old roadmaps, dead specs', tokens: 15000, on: true },
+        { id: 'history', name: 'Sprawling chat history', meta: '40+ turns of noise', tokens: 10000, on: true },
+    ];
+
+    let lens = 'business';
+    let toolSearch = false;
+    let pruned = false;
+    const reduceMotion = matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+    const fmt = n => Math.round(n).toLocaleString('en-US');
+
+    function sumTools() { return connectors.filter(c => c.on).reduce((a, c) => a + c.tokens, 0); }
+    function sumManual() { return manual.filter(m => m.on).reduce((a, m) => a + m.tokens, 0); }
+
+    function effectiveTools() { return toolSearch ? (sumTools() > 0 ? 500 : 0) : sumTools(); }
+    function effectiveManual() { return pruned ? (sumManual() > 0 ? 1500 : 0) : sumManual(); }
+
+    function baselineConsumed() { return sumTools() + sumManual(); }
+    function consumed() { return effectiveTools() + effectiveManual(); }
+
+    /* number tween */
+    function tween(el, to, suffix = '') {
+        const from = parseInt(el.dataset.cur || '0', 10);
+        el.dataset.cur = to;
+        if (reduceMotion) { el.textContent = fmt(to) + suffix; return; }
+        const start = performance.now(), dur = 480;
+        function step(t) {
+            const p = Math.min(1, (t - start) / dur);
+            const e = 1 - Math.pow(1 - p, 3);
+            el.textContent = fmt(from + (to - from) * e) + suffix;
+            if (p < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+    }
+
+    function buildRows() {
+        const cc = document.getElementById('connectorRows');
+        cc.innerHTML = '';
+        connectors.forEach(c => {
+            const r = document.createElement('div');
+            r.className = 'row' + (c.on ? ' on' : '');
+            r.tabIndex = 0; r.setAttribute('role', 'switch'); r.setAttribute('aria-checked', c.on);
+            r.innerHTML = `<span class="sw"></span><span class="name"><b>${c.name}</b><small>${c.meta}</small></span><span class="cost">${fmt(c.tokens)}</span>`;
+            const toggle = () => { c.on = !c.on; r.classList.toggle('on', c.on); r.setAttribute('aria-checked', c.on); render(); };
+            r.addEventListener('click', toggle);
+            r.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); } });
+            cc.appendChild(r);
+        });
+        manual.forEach(m => {
+            const r = document.createElement('div');
+            r.className = 'row manual' + (m.on ? ' on' : '');
+            r.tabIndex = 0; r.setAttribute('role', 'switch'); r.setAttribute('aria-checked', m.on);
+            r.innerHTML = `<span class="sw"></span><span class="name"><b>${m.name}</b><small>${m.meta}</small></span><span class="cost">${fmt(m.tokens)}</span>`;
+            const toggle = () => { m.on = !m.on; r.classList.toggle('on', m.on); r.setAttribute('aria-checked', m.on); render(); };
+            r.addEventListener('click', toggle);
+            r.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); toggle(); } });
+            cc.appendChild(r);
+        });
+    }
+
+    function render() {
+        const et = effectiveTools(), em = effectiveManual();
+        const cons = et + em, pct = cons / WINDOW, left = WINDOW - cons;
+        const base = baselineConsumed();
+
+        /* meter */
+        document.getElementById('segTools').style.width = (et / WINDOW * 100) + '%';
+        const sm = document.getElementById('segManual');
+        sm.style.left = (et / WINDOW * 100) + '%';
+        sm.style.width = (em / WINDOW * 100) + '%';
+
+        const baseMark = document.getElementById('baseMark');
+        if ((toolSearch || pruned) && base > cons) {
+            baseMark.style.display = 'block';
+            baseMark.style.left = (base / WINDOW * 100) + '%';
+        } else baseMark.style.display = 'none';
+
+        tween(document.getElementById('bigNum'), cons);
+        const chip = document.getElementById('pctChip');
+        chip.textContent = Math.round(pct * 100) + '% gone';
+        chip.classList.toggle('warn', pct >= 0.5);
+
+        /* stats + bullets per lens */
+        const dimNote = document.getElementById('connNote');
+        if (lens === 'business') {
+            document.getElementById('conseqTitle').textContent = 'What this costs you';
+            document.getElementById('statK1').textContent = 'Context gone';
+            document.getElementById('statV1').textContent = Math.round(pct * 100) + '%';
+            document.getElementById('statV1').className = 'v' + (pct >= 0.5 ? ' bad' : '');
+            document.getElementById('statK2').textContent = 'Room for your work';
+            document.getElementById('statV2').textContent = fmt(left);
+            document.getElementById('statV2').className = 'v good';
+            document.getElementById('bullets').innerHTML = bizBullets(pct, left);
+            dimNote.textContent = '// This tax is re-paid on every turn. The longer the thread, the less room is left for the answer you actually want.';
+        } else {
+            document.getElementById('conseqTitle').textContent = 'Architect readout';
+            document.getElementById('statK1').textContent = 'Pre-prompt load';
+            document.getElementById('statV1').textContent = fmt(cons);
+            document.getElementById('statV1').className = 'v' + (pct >= 0.5 ? ' bad' : '');
+            document.getElementById('statK2').textContent = 'Tool-select accuracy';
+            const acc = accuracy();
+            document.getElementById('statV2').textContent = acc + '%';
+            document.getElementById('statV2').className = 'v' + (acc >= 86 ? ' good' : (acc < 80 ? ' bad' : ''));
+            document.getElementById('bullets').innerHTML = archBullets(pct, cons);
+            dimNote.textContent = '// Definitions sit in the cached system-prefix. Caching amortises $, but the context space is gone regardless — and more tools dilute selection.';
+        }
+
+        /* reclaim */
+        const reclaimed = Math.max(0, base - cons);
+        tween(document.getElementById('reclaimNum'), reclaimed);
+        document.getElementById('reclaimPct').textContent = `tokens · ${Math.round(reclaimed / WINDOW * 100)}% of the window handed back`;
+    }
+
+    function accuracy() {
+        if (toolSearch) return 88;
+        const n = connectors.filter(c => c.on).length;
+        return Math.max(72, Math.round(88 - Math.max(0, n) * 1.6));
+    }
+
+    function bizBullets(pct, left) {
+        const out = [];
+        if (pct >= 0.5) out.push(`<li><b>You're past half-empty before you start.</b> Replies slow down and you hit your limits sooner.</li>`);
+        else if (pct >= 0.25) out.push(`<li><b>A quarter of the desk is already covered.</b> Fine today, tight by turn 20.</li>`);
+        else out.push(`<li class="good"><b>Plenty of room.</b> The model can hold your whole task in focus.</li>`);
+        out.push(`<li>You're paying rent on connectors you may not be using this session.</li>`);
+        if (pct >= 0.4) out.push(`<li>Less space = vaguer summaries and more "drift" off your instructions.</li>`);
+        return out.join('');
+    }
+    function archBullets(pct, cons) {
+        const out = [];
+        out.push(`<li>${Math.round(pct * 100)}% of a 200K window consumed at <code>t=0</code>, re-read every turn.</li>`);
+        if (!toolSearch && connectors.filter(c => c.on).length >= 4)
+            out.push(`<li><b>Tool-selection accuracy degrades</b> as definitions pile up — fewer, scoped tools choose better.</li>`);
+        else
+            out.push(`<li class="good">Lean tool set keeps selection sharp and the prompt cheap to cache.</li>`);
+        out.push(`<li>Every leftover doc is one fewer slot for retrieved, task-relevant context.</li>`);
+        return out.join('');
+    }
+
+    /* lens toggle */
+    document.querySelectorAll('.seg button').forEach(b => {
+        b.addEventListener('click', () => {
+            lens = b.dataset.lens;
+            document.querySelectorAll('.seg button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-selected', x === b); });
+            render();
+        });
+    });
+
+    /* fix actions */
+    const actSearch = document.getElementById('actSearch');
+    const actPrune  = document.getElementById('actPrune');
+    actSearch.addEventListener('click', () => { toolSearch = !toolSearch; actSearch.classList.toggle('on', toolSearch); actSearch.setAttribute('aria-pressed', toolSearch); render(); });
+    actPrune.addEventListener('click',  () => { pruned = !pruned; actPrune.classList.toggle('on', pruned); actPrune.setAttribute('aria-pressed', pruned); render(); });
+
+    buildRows();
+    render();
+  </script>
+</body>
+</html>

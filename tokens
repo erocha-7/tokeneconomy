@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF vs Markdown — Token Cost Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300..700&display=swap"
+        rel="stylesheet">
+    <!-- Real PDF text extraction, client-side, no backend -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        :root {
+            --bg: #0f0f0f;
+            --surface: #171717;
+            --surface-2: #1e1e1e;
+            --border: #2a2a2a;
+            --text: #e8e6e1;
+            --muted: #6b6b6b;
+            --faint: #3a3a3a;
+            --accent: #4f98a3;
+            --accent-hover: #3a7d87;
+            --accent-dim: #1a3a3f;
+            --green: #6daa45;
+            --green-dim: #1f3312;
+            --amber: #e8a838;
+            --red: #c4604f;
+            --red-dim: #3a1815;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --r: 8px;
+            --space: 1rem;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem 1rem;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            color: var(--accent)
+        }
+
+        .logo-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            letter-spacing: -0.01em
+        }
+
+        .logo-sub {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-family: var(--font-mono)
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 680px;
+            margin-bottom: 1.5rem
+        }
+
+        h2 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 1.25rem
+        }
+
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--r);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 180ms ease;
+            position: relative
+        }
+
+        .drop-zone:hover,
+        .drop-zone.drag-over {
+            border-color: var(--accent);
+            background: var(--accent-dim)
+        }
+
+        .drop-zone input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%
+        }
+
+        .drop-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.5
+        }
+
+        .drop-label {
+            font-size: 0.95rem;
+            color: var(--text);
+            margin-bottom: 0.25rem
+        }
+
+        .drop-hint {
+            font-size: 0.8rem;
+            color: var(--muted)
+        }
+
+        .file-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 0.75rem 1rem
+        }
+
+        .file-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0
+        }
+
+        .file-main {
+            flex: 1;
+            min-width: 0
+        }
+
+        .file-name {
+            font-size: 0.875rem;
+            font-family: var(--font-mono);
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis
+        }
+
+        .file-meta {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-family: var(--font-mono);
+            margin-top: 2px
+        }
+
+        .file-meta b {
+            color: var(--accent);
+            font-weight: 600
+        }
+
+        .file-meta .save {
+            color: var(--green);
+            font-weight: 600
+        }
+
+        .status {
+            font-size: 0.72rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-weight: 500;
+            flex-shrink: 0
+        }
+
+        .status.converting {
+            background: #2a2200;
+            color: var(--amber)
+        }
+
+        .status.done {
+            background: var(--green-dim);
+            color: var(--green)
+        }
+
+        .status.ready {
+            background: var(--accent-dim);
+            color: var(--accent)
+        }
+
+        .status.error {
+            background: var(--red-dim);
+            color: var(--red)
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.7rem 1.5rem;
+            background: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: var(--r);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 180ms ease;
+            width: 100%;
+            justify-content: center;
+            margin-top: 1.25rem
+        }
+
+        .btn:hover {
+            background: var(--accent-hover)
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed
+        }
+
+        .output-block {
+            background: #0a1a1c;
+            border: 1px solid var(--accent-dim);
+            border-radius: var(--r);
+            padding: 1.25rem;
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: #a0d4d8;
+            line-height: 1.7;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem
+        }
+
+        .stat-box {
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1rem;
+            text-align: center
+        }
+
+        .stat-num {
+            font-size: 1.55rem;
+            font-weight: 700;
+            font-family: var(--font-mono);
+            color: var(--accent);
+            display: block;
+            line-height: 1.2
+        }
+
+        .stat-num.green {
+            color: var(--green)
+        }
+
+        .stat-num.red {
+            color: var(--red)
+        }
+
+        .stat-label {
+            font-size: 0.68rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-top: 2px
+        }
+
+        .stat-sub {
+            font-size: 0.65rem;
+            color: var(--faint);
+            font-family: var(--font-mono);
+            margin-top: 3px
+        }
+
+        .cmd-block {
+            background: #0d0d0d;
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 1rem 1.25rem;
+            font-family: var(--font-mono);
+            font-size: 0.78rem;
+            color: var(--green);
+            line-height: 2;
+            overflow-x: auto;
+            white-space: pre
+        }
+
+        .cmd-comment {
+            color: var(--muted)
+        }
+
+        .section-gap {
+            margin-top: 1rem
+        }
+
+        .empty-hint {
+            text-align: center;
+            padding: 1.25rem;
+            color: var(--muted);
+            font-size: 0.85rem
+        }
+
+        .controls-row {
+            display: flex;
+            flex-direction: column;
+            gap: 1.1rem
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem
+        }
+
+        .control-label {
+            font-size: 0.75rem;
+            color: var(--muted);
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline
+        }
+
+        .control-label .val {
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-weight: 600
+        }
+
+        .seg {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap
+        }
+
+        .seg button {
+            flex: 1;
+            min-width: 90px;
+            padding: 0.55rem 0.5rem;
+            background: var(--surface-2);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-family: var(--font-body);
+            cursor: pointer;
+            transition: all 150ms ease
+        }
+
+        .seg button:hover {
+            border-color: var(--accent)
+        }
+
+        .seg button.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--text);
+            font-weight: 600
+        }
+
+        .seg button .sub {
+            display: block;
+            font-size: 0.65rem;
+            color: var(--muted);
+            font-family: var(--font-mono)
+        }
+
+        input[type=range] {
+            width: 100%;
+            accent-color: var(--accent)
+        }
+
+        .note {
+            font-size: 0.78rem;
+            color: var(--muted);
+            line-height: 1.6
+        }
+
+        .note b {
+            color: var(--text);
+            font-weight: 600
+        }
+
+        .calc-card {
+            background: var(--surface);
+            border: 1px solid var(--border)
+        }
+
+        .calc-card .row {
+            display: flex;
+            gap: 0.6rem;
+            padding: 0.55rem 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.82rem
+        }
+
+        .calc-card .row:last-child {
+            border-bottom: none
+        }
+
+        .calc-card .row .k {
+            color: var(--accent);
+            font-family: var(--font-mono);
+            font-weight: 600;
+            flex-shrink: 0;
+            width: 90px
+        }
+
+        .calc-card .row .v {
+            color: var(--muted)
+        }
+
+        .amp {
+            background: var(--red-dim);
+            border: 1px solid #5a2620;
+            border-radius: var(--r);
+            padding: 1rem 1.25rem;
+            margin-top: 0.75rem;
+            font-size: 0.88rem;
+            line-height: 1.6
+        }
+
+        .amp b {
+            color: #e89a8a
+        }
+
+        .amp .big {
+            color: var(--red);
+            font-weight: 700;
+            font-family: var(--font-mono);
+            font-size: 1.05rem
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 0.62rem;
+            font-family: var(--font-mono);
+            color: var(--amber);
+            border: 1px solid #4a3a10;
+            background: #241d08;
+            border-radius: 4px;
+            padding: 1px 6px;
+            margin-left: 6px;
+            vertical-align: middle
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="logo">
+        <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="4" y="2" width="16" height="20" rx="2" />
+            <path d="M10 2v20M20 7h6a2 2 0 0 1 2 2v17a2 2 0 0 1-2 2H12a2 2 0 0 1-2-2v-4" />
+            <path d="M14 13h8M14 17h5" />
+        </svg>
+        <div>
+            <div class="logo-text">pdf vs markdown</div>
+            <div class="logo-sub">Real token cost · Level 1: The Text Purist</div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="card">
+        <h2>Pricing Assumptions <span class="badge" id="modeBadge">live extraction</span></h2>
+        <div class="controls-row">
+            <div class="control-group">
+                <div class="control-label">Model (input price)</div>
+                <div class="seg" id="modelSeg">
+                    <button data-model="opus" data-rate="5" class="active">Opus 4.8<span class="sub">$5 /
+                            Mtok</span></button>
+                    <button data-model="sonnet" data-rate="3">Sonnet 4.6<span class="sub">$3 / Mtok</span></button>
+                    <button data-model="haiku" data-rate="1">Haiku 4.5<span class="sub">$1 / Mtok</span></button>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="control-label">PDF page density <span class="val" id="rateVal">2,250 tok/page</span></div>
+                <div class="seg" id="rateSeg">
+                    <button data-rate="1500">Light<span class="sub">1,500</span></button>
+                    <button data-rate="2250" class="active">Typical<span class="sub">2,250</span></button>
+                    <button data-rate="3000">Dense<span class="sub">3,000</span></button>
+                </div>
+            </div>
+            <div class="control-group">
+                <div class="control-label">Chat turns the doc stays in context <span class="val"
+                        id="turnsVal">10×</span></div>
+                <input type="range" id="turnsRange" min="1" max="30" value="10">
+                <div class="note" style="font-size:0.72rem">Input tokens are re-sent every turn the document remains in
+                    history — cost compounds.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Drop Zone -->
+    <div class="card">
+        <h2>Drop PDFs Here</h2>
+        <div class="drop-zone" id="dropZone">
+            <input type="file" id="fileInput" accept=".pdf" multiple>
+            <div class="drop-icon">📄</div>
+            <div class="drop-label">Drag &amp; drop PDFs, or click to browse</div>
+            <div class="drop-hint">Text is extracted in your browser — nothing is uploaded anywhere</div>
+        </div>
+        <div class="file-list section-gap" id="fileList">
+            <div class="empty-hint" id="emptyHint">No files yet — drop a PDF to measure the real difference</div>
+        </div>
+        <button class="btn" id="convertBtn" disabled>⚡ Extract &amp; Measure</button>
+    </div>
+
+    <!-- Token + $ Stats -->
+    <div class="card" id="resultsCard" style="display:none">
+        <h2>The Difference</h2>
+        <div class="stats">
+            <div class="stat-box">
+                <span class="stat-num red" id="pdfTokens">—</span>
+                <div class="stat-label">PDF tokens</div>
+                <div class="stat-sub" id="pdfTokensSub">page images</div>
+            </div>
+            <div class="stat-box">
+                <span class="stat-num green" id="mdTokens">—</span>
+                <div class="stat-label">Markdown tokens</div>
+                <div class="stat-sub" id="mdTokensSub">clean text</div>
+            </div>
+            <div class="stat-box">
+                <span class="stat-num green" id="reduction">—</span>
+                <div class="stat-label">Reduction</div>
+                <div class="stat-sub">fewer tokens</div>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat-box">
+                <span class="stat-num red" id="pdfCost">—</span>
+                <div class="stat-label">PDF cost</div>
+                <div class="stat-sub">1 pass</div>
+            </div>
+            <div class="stat-box">
+                <span class="stat-num green" id="mdCost">—</span>
+                <div class="stat-label">Markdown cost</div>
+                <div class="stat-sub">1 pass</div>
+            </div>
+            <div class="stat-box">
+                <span class="stat-num green" id="saved">—</span>
+                <div class="stat-label">Saved</div>
+                <div class="stat-sub">per pass</div>
+            </div>
+        </div>
+        <div class="amp" id="ampBox"></div>
+        <div id="extractionWarning" style="display:none; background:#2a2200; border:1px solid #4a3a10; border-radius:var(--r); padding:1rem 1.25rem; margin-top:0.75rem; font-size:0.85rem; line-height:1.6; color:var(--amber);"></div>
+    </div>
+
+    <!-- Markdown Preview -->
+    <div class="card" id="previewCard" style="display:none">
+        <h2 style="display:flex; justify-content:space-between; align-items:center;">
+            <span>Extracted Markdown <span class="badge" id="previewName"></span></span>
+            <button id="togglePreviewBtn" style="background:none; border:1px solid var(--border); color:var(--muted); padding:3px 10px; border-radius:4px; font-size:0.75rem; font-family:var(--font-body); cursor:pointer; transition:all 150ms ease;">Hide</button>
+        </h2>
+        <div class="output-block" id="mdPreview"></div>
+    </div>
+
+    <!-- How it's calculated -->
+    <div class="card calc-card">
+        <h2>How These Numbers Are Calculated</h2>
+        <div class="row"><span class="k">PDF tokens</span><span class="v">pages × density. Anthropic's PDF docs: each
+                page is also rendered as an image and costs ~1,500–3,000 tokens. Adjustable above.</span></div>
+        <div class="row"><span class="k">MD tokens</span><span class="v">real extracted text ÷ 4 (Anthropic's
+                ~4-chars-per-token rule of thumb).</span></div>
+        <div class="row"><span class="k">$ cost</span><span class="v">tokens × input rate. Opus 4.8 $5 · Sonnet 4.6 $3 ·
+                Haiku 4.5 $1 per million (verified Jun 2026).</span></div>
+        <div class="row"><span class="k">Caveat</span><span class="v">Text-token estimate; not a byte-exact tokenizer.
+                The order-of-magnitude gap is the point, and it's real.</span></div>
+    </div>
+
+    <!-- Local Automation -->
+    <div class="card">
+        <h2>🤖 Automate It — Folder Watcher</h2>
+        <p class="note" style="margin-bottom:1rem">Drop this in your Obsidian vault or any inbox folder. It watches for
+            PDFs and auto-converts them to clean <code style="color:var(--accent)">.md</code> before they ever reach an
+            LLM.</p>
+        <div class="cmd-block"><span class="cmd-comment"># 1. Install once</span>
+            pip install watchdog pymupdf4llm
+
+            <span class="cmd-comment"># 2. Watch a folder</span>
+            python watch_convert.py --folder ~/Obsidian/inbox
+
+            <span class="cmd-comment"># 3. Drop a PDF in → token-efficient .md appears beside it</span>
+        </div>
+    </div>
+
+    <script>
+        // ---- PDF.js worker ----
+        let PDF_OK = false;
+        try {
+            if (window.pdfjsLib) {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+                PDF_OK = true;
+            }
+        } catch (e) { PDF_OK = false; }
+
+        // ---- State ----
+        const files = [];            // {file, status, pages, text, error}
+        let perPageRate = 2250;
+        let inputRate = 5;           // $/Mtok
+        let turns = 10;
+        const CHARS_PER_TOKEN = 4;
+        const TYPICAL_TEXT_TOKENS_PER_PAGE = 750; // ~300 words × 1.3 tok/word, a reasonable fallback
+
+        // ---- Helpers ----
+        const $ = id => document.getElementById(id);
+        function fmtNum(n) { n = Math.round(n); return n >= 1000 ? (n / 1000).toFixed(1) + 'k' : String(n); }
+        function fmtMoney(v) {
+            if (v >= 1) return '$' + v.toFixed(2);
+            if (v >= 0.01) return '$' + v.toFixed(3);
+            return '$' + v.toFixed(5);
+        }
+        function textTokens(text) { return Math.round((text || '').length / CHARS_PER_TOKEN); }
+        function pdfTokensFor(f) { return (f.pages || 0) * perPageRate; }
+        function fmtPct(pdfT, mdT) {
+            if (pdfT === 0) return '0';
+            const val = (1 - mdT / pdfT) * 100;
+            if (val > 99 && val < 100) return val.toFixed(1);
+            if (val > 0 && val < 1) return val.toFixed(1);
+            return Math.round(val).toString();
+        }
+        function tidyToMarkdown(raw) {
+            // Light cleanup: collapse whitespace, keep paragraph breaks
+            return raw.replace(/[ \t]+/g, ' ')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+        function cleanForDisplay(raw) {
+            // Aggressive cleanup for preview only — NOT used for token counting
+            const lines = raw.split('\n');
+            const cleanLines = lines.map(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return '';
+                // Strip long runs of repeated punctuation/layout chars
+                if (/([\.\-_＊\*=,~])\1{3,}/.test(trimmed)) return '';
+                // Strip lines dominated by non-alphanumeric characters
+                const alnumSpace = (trimmed.match(/[a-zA-Z0-9\s\u00C0-\u017F]/g) || []).length;
+                if (trimmed.length > 5 && (alnumSpace / trimmed.length) < 0.4) return '';
+                return line;
+            });
+            return cleanLines.join('\n')
+                .replace(/\n{3,}/g, '\n\n')
+                .trim();
+        }
+
+        // ---- Extraction ----
+        async function extractPdf(file) {
+            if (!PDF_OK) throw new Error('offline');
+            const buf = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+            const pages = pdf.numPages;
+            let text = '';
+            for (let p = 1; p <= pages; p++) {
+                const page = await pdf.getPage(p);
+                const content = await page.getTextContent();
+                const strs = content.items.map(it => it.str);
+                text += strs.join(' ') + '\n\n';
+            }
+            return { pages, text: tidyToMarkdown(text) };
+        }
+        // Fallback when PDF.js can't load (e.g. no network at the venue)
+        function estimateOffline(file) {
+            const pages = Math.max(1, Math.round(file.size / 45000)); // ~45KB/page heuristic
+            const approxChars = file.size * 0.18;                     // rough text fraction
+            return { pages, text: '(offline estimate — extracted text unavailable)', _chars: approxChars };
+        }
+
+        // ---- UI wiring ----
+        const dropZone = $('dropZone'), fileInput = $('fileInput'), fileList = $('fileList'),
+            convertBtn = $('convertBtn'), emptyHint = $('emptyHint');
+
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag-over'); handleFiles(e.dataTransfer.files); });
+        fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+        if (!PDF_OK) { $('modeBadge').textContent = 'offline estimate'; $('modeBadge').style.color = 'var(--amber)'; }
+
+        // model selector
+        $('modelSeg').addEventListener('click', e => {
+            const b = e.target.closest('button'); if (!b) return;
+            [...$('modelSeg').children].forEach(x => x.classList.remove('active'));
+            b.classList.add('active'); inputRate = +b.dataset.rate; recompute();
+        });
+        // density selector
+        $('rateSeg').addEventListener('click', e => {
+            const b = e.target.closest('button'); if (!b) return;
+            [...$('rateSeg').children].forEach(x => x.classList.remove('active'));
+            b.classList.add('active'); perPageRate = +b.dataset.rate;
+            $('rateVal').textContent = perPageRate.toLocaleString() + ' tok/page'; recompute();
+        });
+        // turns slider
+        $('turnsRange').addEventListener('input', e => {
+            turns = +e.target.value; $('turnsVal').textContent = turns + '×'; recompute();
+        });
+
+        function handleFiles(incoming) {
+            Array.from(incoming).forEach(f => {
+                if (f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) {
+                    files.push({ file: f, status: 'ready', pages: 0, text: '', error: null });
+                }
+            });
+            renderList();
+        }
+
+        function renderList() {
+            if (files.length === 0) { emptyHint.style.display = ''; convertBtn.disabled = true; return; }
+            emptyHint.style.display = 'none';
+            fileList.innerHTML = files.map((f, i) => {
+                let meta = '';
+                if (f.status === 'done') {
+                    const pdfT = pdfTokensFor(f), mdT = textTokens(f.text);
+                    const pct = fmtPct(pdfT, mdT);
+                    meta = `<div class="file-meta">${f.pages} pages · PDF <b>${fmtNum(pdfT)}</b> → MD <b>${fmtNum(mdT)}</b> tok · <span class="save">−${pct}%</span></div>`;
+                } else {
+                    meta = `<div class="file-meta">${(f.file.size / 1024).toFixed(0)} KB</div>`;
+                }
+                const label = f.status === 'ready' ? 'Ready' : f.status === 'converting' ? 'Reading…' : f.status === 'error' ? 'Error' : '✓ Done';
+                return `<div class="file-item">
+      <span class="file-icon">📄</span>
+      <div class="file-main"><div class="file-name">${f.file.name}</div>${meta}</div>
+      <span class="status ${f.status}" id="status-${i}">${label}</span>
+    </div>`;
+            }).join('');
+            convertBtn.disabled = false;
+        }
+
+        convertBtn.addEventListener('click', async () => {
+            convertBtn.disabled = true; convertBtn.textContent = '⏳ Reading PDFs…';
+            for (let i = 0; i < files.length; i++) {
+                const f = files[i]; if (f.status === 'done') continue;
+                f.status = 'converting'; renderList();
+                try {
+                    let res;
+                    if (PDF_OK) { res = await extractPdf(f.file); }
+                    else { res = estimateOffline(f.file); res.text = 'x'.repeat(Math.round(res._chars)); }
+                    f.pages = res.pages; f.text = res.text; f.status = 'done';
+                } catch (err) {
+                    // per-file fallback
+                    const res = estimateOffline(f.file);
+                    f.pages = res.pages; f.text = 'x'.repeat(Math.round(res._chars || 0)); f.status = 'done';
+                }
+                renderList();
+            }
+            convertBtn.textContent = '✅ Measured — drop more or change assumptions';
+            recompute();
+            showPreview();
+        });
+
+        function recompute() {
+            const done = files.filter(f => f.status === 'done');
+            if (done.length === 0) return;
+            $('resultsCard').style.display = '';
+            const totalPages = done.reduce((a, f) => a + f.pages, 0);
+            let pdfT = 0, mdT = 0;
+            done.forEach(f => { pdfT += pdfTokensFor(f); mdT += textTokens(f.text); });
+
+            // Detect low-quality extraction: < 50 chars/page means pdf.js likely failed
+            const charsPerPage = totalPages > 0 ? (mdT * CHARS_PER_TOKEN) / totalPages : 0;
+            const lowExtraction = charsPerPage < 200 && totalPages > 0;
+            let displayMdT = mdT;
+            if (lowExtraction) {
+                // Use a conservative estimate instead
+                displayMdT = totalPages * TYPICAL_TEXT_TOKENS_PER_PAGE;
+            }
+
+            const pct = fmtPct(pdfT, displayMdT);
+            const pdf$ = pdfT / 1e6 * inputRate, md$ = displayMdT / 1e6 * inputRate, save$ = pdf$ - md$;
+
+            $('pdfTokens').textContent = fmtNum(pdfT);
+            $('mdTokens').textContent = fmtNum(displayMdT);
+            $('reduction').textContent = '−' + pct + '%';
+            $('pdfTokensSub').textContent = totalPages + ' pages';
+            $('mdTokensSub').textContent = lowExtraction ? '~estimated' : 'extracted text';
+            $('pdfCost').textContent = fmtMoney(pdf$);
+            $('mdCost').textContent = fmtMoney(md$);
+            $('saved').textContent = fmtMoney(save$);
+
+            // Show warning if extraction quality is low
+            const warnEl = $('extractionWarning');
+            if (lowExtraction) {
+                warnEl.style.display = '';
+                warnEl.innerHTML = `⚠️ <b>Low extraction quality detected</b> — pdf.js could only extract ~${Math.round(charsPerPage)} chars/page (expected ~1,200+). ` +
+                    `This PDF likely uses custom font encodings or is a scan. ` +
+                    `Markdown tokens shown above are <b>estimated at ~${TYPICAL_TEXT_TOKENS_PER_PAGE} tok/page</b> instead. ` +
+                    `For precise results, use a server-side tool like <code style="color:var(--text)">pymupdf4llm</code>.`;
+            } else {
+                warnEl.style.display = 'none';
+            }
+
+            // amplifier: across N turns, and scaled to 100 docs/month
+            const turnSave = save$ * turns;
+            const monthly = save$ / done.length * 100 * turns; // per 100 docs at same turn depth
+            $('ampBox').innerHTML =
+                `Re-sent across <b>${turns} chat turns</b>, the PDF overhead wastes <span class="big">${fmtMoney(turnSave)}</span> on these ${done.length} doc${done.length > 1 ? 's' : ''} alone.<br>` +
+                `At <b>100 docs/month</b>, same depth: <span class="big">${fmtMoney(monthly)}/mo</span> burned on formatting you never asked for.`;
+        }
+
+        function showPreview() {
+            const first = files.find(f => f.status === 'done' && PDF_OK && f.text && !f.text.startsWith('x'));
+            if (!first) return;
+            $('previewCard').style.display = '';
+            $('previewName').textContent = first.file.name;
+            const displayText = cleanForDisplay(first.text);
+            let body = displayText.slice(0, 1800);
+            if (displayText.length > 1800) body += '\n\n…';
+            $('mdPreview').textContent = '# ' + first.file.name.replace(/\.pdf$/i, '') + '\n\n' + body;
+        }
+
+        // Toggle Preview visibility
+        $('togglePreviewBtn').addEventListener('click', () => {
+            const block = $('mdPreview');
+            const btn = $('togglePreviewBtn');
+            if (block.style.display === 'none') {
+                block.style.display = 'block';
+                btn.textContent = 'Hide';
+            } else {
+                block.style.display = 'none';
+                btn.textContent = 'Show';
+            }
+        });
+    </script>
+</body>
+
+</html>

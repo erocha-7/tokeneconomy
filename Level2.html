@@ -1,0 +1,771 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Token Economy · Level 2 · The Thread Architect</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet"><style> :root {
+    --ink: #14130F;
+    --ink-2: #1C1A14;
+    --ink-3: #23211A;
+    --line: #332F25;
+    --bone: #EFE9DC;
+    --bone-dim: #A39B88;
+    --amber: #E8A33D;
+    --rust: #C75B39;
+    --teal: #5FB8A6;
+    --teal-deep: #2C5E57;
+    --disp: 'Bricolage Grotesque', system-ui, sans-serif;
+    --body: 'IBM Plex Sans', system-ui, sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0
+}
+
+html {
+    scroll-behavior: smooth
+}
+
+body {
+    background: var(--ink);
+    color: var(--bone);
+    font-family: var(--body);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding: clamp(20px, 4vw, 56px);
+    background-image: radial-gradient(circle at 18% -10%, rgba(232, 163, 61, .07), transparent 45%),
+        radial-gradient(circle at 92% 8%, rgba(95, 184, 166, .06), transparent 40%);
+}
+
+.wrap {
+    max-width: 980px;
+    margin: 0 auto
+}
+
+/* ---- Masthead ---- */
+.eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .32em;
+    text-transform: uppercase;
+    color: var(--amber);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.eyebrow::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: linear-gradient(90deg, var(--line), transparent)
+}
+
+h1 {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: clamp(40px, 8vw, 84px);
+    line-height: .96;
+    letter-spacing: -.02em;
+    margin: 18px 0 10px;
+}
+
+h1 .slice {
+    color: var(--amber)
+}
+
+.dek {
+    font-size: clamp(16px, 2.2vw, 20px);
+    color: var(--bone-dim);
+    max-width: 46ch
+}
+
+.premise {
+    margin-top: 26px;
+    padding: 16px 20px;
+    border-left: 2px solid var(--teal-deep);
+    background: linear-gradient(90deg, rgba(44, 94, 87, .18), transparent);
+    font-size: 15px;
+    color: var(--bone);
+}
+
+.premise b {
+    color: var(--teal);
+    font-weight: 600
+}
+
+.shield {
+    margin-top: 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    padding: 16px 20px;
+    border: 1px solid var(--line);
+    border-left: 2px solid var(--amber);
+    border-radius: 0 3px 3px 0;
+    background: rgba(232, 163, 61, .05);
+}
+
+.shield .q {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: .06em;
+    color: var(--amber);
+    white-space: nowrap;
+    padding-top: 1px
+}
+
+.shield p {
+    font-size: 14px;
+    color: var(--bone);
+    margin: 0
+}
+
+.shield p b {
+    color: var(--bone)
+}
+
+.cmd {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .06em;
+    color: var(--amber);
+    margin-top: 6px;
+    background: rgba(232, 163, 61, .08);
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 3px;
+    border: 1px solid rgba(232, 163, 61, .25)
+}
+
+/* ---- Section frame ---- */
+section {
+    margin-top: clamp(48px, 7vw, 88px)
+}
+
+.sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 22px
+}
+
+.sec-num {
+    font-family: var(--mono);
+    color: var(--amber);
+    font-size: 13px;
+    letter-spacing: .2em
+}
+
+.sec-title {
+    font-family: var(--disp);
+    font-weight: 700;
+    font-size: clamp(22px, 3.4vw, 30px);
+    letter-spacing: -.01em
+}
+
+/* ---- Console ---- */
+.console {
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.console-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--line);
+    background: var(--ink-3);
+    flex-wrap: wrap;
+}
+
+.turn-read {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--bone-dim)
+}
+
+.turn-read b {
+    color: var(--bone);
+    font-size: 20px;
+    font-weight: 600
+}
+
+.mode-toggle {
+    display: flex;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden
+}
+
+.mode-toggle button {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    background: transparent;
+    color: var(--bone-dim);
+    border: 0;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background .18s, color .18s;
+}
+
+.mode-toggle button[aria-pressed="true"] {
+    background: var(--amber);
+    color: var(--ink);
+    font-weight: 600
+}
+
+.mode-toggle button:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: -2px
+}
+
+.console-body {
+    padding: 24px 20px 8px
+}
+
+/* slider */
+.slider-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 8px
+}
+
+.slider-row label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    white-space: nowrap
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    flex: 1;
+    height: 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--teal) 0%, var(--amber) 50%, var(--rust) 100%);
+    cursor: pointer;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bone);
+    border: 3px solid var(--ink);
+    box-shadow: 0 0 0 1px var(--bone-dim);
+}
+
+input[type=range]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--bone);
+    border: 3px solid var(--ink);
+}
+
+input[type=range]:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 6px
+}
+
+.scale {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--bone-dim);
+    margin-bottom: 24px;
+    padding: 0 2px
+}
+
+/* context tape (signature) */
+.tape-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px
+}
+
+.tape-label span {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--bone-dim)
+}
+
+.tape {
+    height: 46px;
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    overflow: hidden;
+    display: flex;
+    background: repeating-linear-gradient(90deg, transparent, transparent 23px, rgba(255, 255, 255, .025) 23px, rgba(255, 255, 255, .025) 24px);
+}
+
+.seg {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: width .25s ease
+}
+
+.seg-instr {
+    background: linear-gradient(180deg, var(--teal), var(--teal-deep));
+    color: var(--ink);
+    font-weight: 600
+}
+
+.seg-cruft {
+    background: repeating-linear-gradient(45deg, rgba(199, 91, 57, .28), rgba(199, 91, 57, .28) 8px, rgba(199, 91, 57, .14) 8px, rgba(199, 91, 57, .14) 16px);
+    border-left: 1px solid var(--rust)
+}
+
+.seg span {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .05em;
+    white-space: nowrap;
+    padding: 0 8px
+}
+
+.seg-cruft span {
+    color: var(--rust)
+}
+
+.tape-note {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--bone-dim);
+    margin-top: 8px
+}
+
+.tape-note b {
+    color: var(--rust)
+}
+
+/* metric grid */
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    margin-top: 26px;
+    overflow: hidden
+}
+
+.metric {
+    background: var(--ink-2);
+    padding: 18px 18px 20px
+}
+
+.metric .k {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--bone-dim)
+}
+
+.metric .v {
+    font-family: var(--disp);
+    font-weight: 700;
+    font-size: clamp(26px, 4.4vw, 40px);
+    line-height: 1;
+    margin-top: 10px;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums
+}
+
+.metric .sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--bone-dim);
+    margin-top: 8px
+}
+
+/* drift gauge */
+.gauge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 18px
+}
+
+.gauge {
+    width: 90px;
+    height: 54px;
+    flex: none
+}
+
+.gauge-txt .lvl {
+    font-family: var(--disp);
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: .02em
+}
+
+/* reframe callout */
+.reframe {
+    margin-top: 1px;
+    background: var(--ink-3);
+    border: 1px solid var(--line);
+    border-top: 0;
+    padding: 20px;
+    border-radius: 0 0 3px 3px;
+}
+
+.reframe .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 8px
+}
+
+.reframe p {
+    font-size: 15px;
+    color: var(--bone)
+}
+
+.reframe p b {
+    color: var(--bone)
+}
+
+/* ---- The Move (slice strategy) ---- */
+.flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    align-items: stretch;
+    gap: 0;
+    margin-top: 8px
+}
+
+.node {
+    background: var(--ink-2);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px 16px
+}
+
+.node .step {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .18em;
+    color: var(--amber);
+    text-transform: uppercase
+}
+
+.node h4 {
+    font-family: var(--disp);
+    font-weight: 700;
+    font-size: 17px;
+    margin: 8px 0 6px
+}
+
+.node p {
+    font-size: 13px;
+    color: var(--bone-dim);
+    line-height: 1.45
+}
+
+.node .turns {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--teal);
+    margin-top: 10px
+}
+
+.arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bone-dim);
+    font-family: var(--mono);
+    padding: 0 10px
+}
+
+.arrow small {
+    writing-mode: horizontal-tb;
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--amber)
+}
+
+/* compare */
+.compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 26px
+}
+
+.card {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px;
+    background: var(--ink-2)
+}
+
+.card.bad {
+    border-color: rgba(199, 91, 57, .5)
+}
+
+.card.good {
+    border-color: rgba(95, 184, 166, .5)
+}
+
+.card .ct {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--bone-dim)
+}
+
+.card.bad .ct {
+    color: var(--rust)
+}
+
+.card.good .ct {
+    color: var(--teal)
+}
+
+.card .cv {
+    font-family: var(--disp);
+    font-weight: 800;
+    font-size: clamp(28px, 5vw, 44px);
+    line-height: 1;
+    margin: 10px 0 4px;
+    font-variant-numeric: tabular-nums
+}
+
+.card .cd {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--bone-dim)
+}
+
+.saving {
+    margin-top: 18px;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--bone-dim)
+}
+
+.saving b {
+    color: var(--teal);
+    font-size: 22px;
+    font-weight: 600
+}
+
+/* footnote */
+.foot {
+    margin-top: 48px;
+    padding-top: 22px;
+    border-top: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--bone-dim);
+    line-height: 1.6
+}
+
+.foot b {
+    color: var(--amber)
+}
+
+.foot .lbl {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    display: block;
+    margin-bottom: 6px
+}
+
+@media(max-width:720px) {
+    .metrics {
+        grid-template-columns: 1fr
+    }
+
+    .flow {
+        grid-template-columns: 1fr;
+        gap: 8px
+    }
+
+    .arrow {
+        transform: rotate(90deg);
+        padding: 4px 0
+    }
+
+    .compare {
+        grid-template-columns: 1fr
+    }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    * {
+        transition: none !important;
+        scroll-behavior: auto
+    }
+}
+
+</style></head><body><div class="wrap"><header><div class="eyebrow">Token Economy · Level 02</div><h1>The Thread<br>Architect<span class="slice">.</span></h1><p class="dek">Slicing context before it slices your output. Every turn re-sends the whole conversation — so a long thread isn't a memory, it' s a tax.</p><div class="premise">Inside a thread there's <b>no free recall</b> — by default the model re-reads the entire conversation on every turn. Length isn' t memory;
+it's a recurring bill paid in tokens <i>and</i> attention.</div>
+ </header><!--============SIMULATOR============--><section><div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">Watch a thread rot in real time</h2></div><div class="console"><div class="console-top"><div class="turn-read">Thread length&nbsp;
+&nbsp;
+<b id="turnVal">12</b>turns</div><div class="mode-toggle" role="group" aria-label="Audience framing"><button id="mBiz" aria-pressed="true">Chat User</button><button id="mDev" aria-pressed="false">Builder</button></div></div><div class="console-body"><div class="slider-row"><label for="turns">Turns</label><input type="range" id="turns" min="1" max="50" value="12" aria-describedby="turnVal"></div><div class="scale"><span>1</span><span>15 · execution ceiling</span><span>50</span></div><div class="tape-label"><span>Context window sent every turn</span><span id="ctxTotal">—</span></div><div class="tape" id="tape" role="img" aria-label="Context composition: instructions versus thread overhead"><div class="seg seg-instr" id="segInstr"><span>Your instructions</span></div><div class="seg seg-cruft" id="segCruft"><span>Thread overhead</span></div></div><div class="tape-note">Your original instructions now hold <b id="instrShare">—</b>of the model's attention budget.</div>
+
+<div class="metrics"><div class="metric"><div class="k">Tokens / turn</div><div class="v" id="mPerTurn">—</div><div class="sub">re-sent on every reply</div></div><div class="metric"><div class="k">Tokens burned · whole thread</div><div class="v" id="mCumulative">—</div><div class="sub">grows <i>quadratically</i>,
+not linearly</div></div><div class="metric"><div class="k">Drift risk</div><div class="gauge-wrap"><svg class="gauge" viewBox="0 0 100 60" aria-hidden="true"><path d="M8 56 A 42 42 0 0 1 92 56" fill="none" stroke="#332F25" stroke-width="8" stroke-linecap="round" /><path id="gaugeArc" d="M8 56 A 42 42 0 0 1 92 56" fill="none" stroke="#5FB8A6" stroke-width="8" stroke-linecap="round" stroke-dasharray="132" stroke-dashoffset="132" /></svg><div class="gauge-txt"><div class="lvl" id="driftLvl">—</div><div class="sub" id="driftPct" style="font-family:var(--mono);font-size:11px;color:var(--bone-dim)">—</div></div></div></div></div></div><div class="reframe"><div class="tag" id="reframeTag">Why you care</div><p id="reframeBody">—</p></div></div><div class="shield"><div class="q">"But the window<br>is 1M now?" </div><p>It is — <b>500K in chat,
+up to 1M in Code and the API</b>,
+depending on the model and plan. But a bigger window doesn't stop the rot: instruction-following degrades long before you hit the limit. Big ≠ free, and big ≠ focused. The cap that matters is <b>attention</b>, not capacity.</p>
+ </div></section><section><div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">The architect's move: slice it</h2>
+ </div><div class="flow"><div class="node"><div class="step">Mode A</div><h4>Exploration</h4><p>Think out loud. Brainstorm across tools,
+chase dead ends,
+change your mind. Overhead is fine here — nothing ships from this thread.</p><div class="turns">~15 turns · disposable</div><div class="cmd">Plan mode</div></div><div class="arrow"><small>summarise ▸</small></div><div class="node"><div class="step">Compress</div><h4>State anchor</h4><p>Ask for one tight summary: the decisions,
+constraints and format rules.~600 tokens that replace 8,
+000.</p><div class="turns">1 call · the handoff</div><div class="cmd">/compact</div></div><div class="arrow"><small>seed ▸</small></div><div class="node"><div class="step">Mode B</div><h4>Execution</h4><p>Fresh thread. Paste the anchor,
+do the real work. Instructions sit at the top of a clean window — no dilution.</p><div class="turns">&lt;
+
+15 turns · the deliverable</div><div class="cmd">/clear → fresh thread</div></div></div><div class="compare"><div class="card bad"><div class="ct">One sprawling thread · 50 turns</div><div class="cv" id="sprawlTok">—</div><div class="cd">tokens burned · drift in the red</div></div><div class="card good"><div class="ct">Sliced · explore → anchor → execute</div><div class="cv" id="sliceTok">—</div><div class="cd">tokens burned · no thread over~15 turns</div></div></div><div class="saving">Same outcome,
+sliced — <b id="savingPct">—</b>fewer tokens through the model.</div></section><!--============FOOTNOTE============--><div class="foot"><span class="lbl">Honest small print</span>Numbers are an <b>illustrative model</b>(~700-token system prompt, ~500 tokens added per turn) to make the shape of the problem visible — your real figures vary with message size. Three things worth saying out loud to a technical room: <b>window size is surface-specific</b>— roughly 500K in Claude.ai chat,
+up to 1M in Claude Code and the API (model- and plan-dependent) — so "just use the big window" doesn't save you: quality degrades before the limit. <b>Prompt caching</b> cuts the <i>dollar</i> cost of re-sent history to roughly a tenth, but does <b>not</b> fix attention dilution — a cached long thread still drifts. And the failure mode is <b>context rot</b> (the model losing the thread of your constraints), not anything mystical. The fix is architectural: keep each working thread short, compact <i>proactively</i> (~50–60% full, not at the limit), and seed the next thread deliberately.
+ </div></div><script>(function() {
+        // ---- illustrative model ----
+        var SYS=700; // fixed system / original instructions
+        var PER=500; // tokens added per turn (user+assistant)
+
+        function ctxAt(n) {
+            return SYS + n*PER;
+        }
+
+        // context sent on turn n
+        function cumulative(n, base) {
+            base=base||SYS; return n*base + PER*n*(n+1)/2;
+        }
+
+        function fmt(x) {
+            return Math.round(x).toLocaleString('en-GB');
+        }
+
+        function driftRisk(history) {
+            return 100*(1-Math.exp(-history/9000));
+        }
+
+        // ---- elements ----
+        var slider=document.getElementById('turns');
+        var turnVal=document.getElementById('turnVal');
+        var segInstr=document.getElementById('segInstr');
+        var segCruft=document.getElementById('segCruft');
+        var instrShare=document.getElementById('instrShare');
+        var ctxTotal=document.getElementById('ctxTotal');
+        var mPerTurn=document.getElementById('mPerTurn');
+        var mCumulative=document.getElementById('mCumulative');
+        var gaugeArc=document.getElementById('gaugeArc');
+        var driftLvl=document.getElementById('driftLvl');
+        var driftPct=document.getElementById('driftPct');
+        var reframeBody=document.getElementById('reframeBody');
+        var reframeTag=document.getElementById('reframeTag');
+
+        var mode='biz';
+
+        var COPY= {
+            biz: {
+
+                tag:'For Chat Users',
+                fn:function(n, share, drift) {
+                    if(n<=6) return 'Still clean. The model can clearly see your instructions and formatting rules — this is the zone where output stays on-brief.';
+                    if(n<=16) return 'Overhead is creeping in. Your instructions hold only <b>' +share+'</b> of the window. This is the moment to summarise and start fresh — before formatting rules start slipping.';
+                    return 'The thread is polluted. Your original brief is buried under junk, so the model <b>drifts</b> — ignoring your tone, format and constraints. It feels like Claude "forgot," but you simply drowned the instructions. Cut a fresh thread.';
+                }
+            }
+
+            ,
+            dev: {
+
+                tag:'For Builders',
+                fn:function(n, share, drift) {
+                    if(n<=6) return 'Lean payload. State-tracking overhead is low and output structure is predictable — cheap and deterministic.';
+                    if(n<=16) return 'Payload is climbing and instructions are down to <b>' +share+'</b> of context. Latency rises and structured outputs get flaky. Design the summarise-and-flush handoff around here.';
+                    return 'Heavy payload, high state-tracking overhead: slower responses and unpredictable structure. Stop hauling raw history — summarise and flush. In Claude Code that\'s <b>/compact</b> (proactively, ~50–60% full — not at the limit, where auto-compact makes the call for you and often keeps the wrong things), then <b>/clear</b> for a fresh thread seeded with the anchor.';
+                }
+            }
+        }
+
+        ;
+
+        function render() {
+            var n=+slider.value;
+            var ctx=ctxAt(n);
+            var cruft=n*PER;
+            var sharePct=SYS/ctx*100;
+            var drift=driftRisk(cruft);
+
+            turnVal.textContent=n;
+            ctxTotal.textContent=fmt(ctx)+' tokens';
+            mPerTurn.textContent=fmt(ctx);
+            mCumulative.textContent=fmt(cumulative(n));
+
+            // tape
+            var instrW=Math.max(sharePct, 4);
+            segInstr.style.width=instrW+'%';
+            segCruft.style.width=(100-instrW)+'%';
+            segInstr.querySelector('span').style.display=instrW<14?'none':'block';
+            instrShare.textContent=sharePct.toFixed(sharePct<10?1:0)+'%';
+
+            // gauge (132 = approx arc length)
+            var L=132;
+            gaugeArc.style.strokeDashoffset=L*(1-drift/100);
+            var col=drift<33?'#5FB8A6': drift<66?'#E8A33D':'#C75B39';
+            var lvl=drift<33?'Low': drift<66?'Rising':'Critical';
+            gaugeArc.style.stroke=col;
+            driftLvl.style.color=col;
+            driftLvl.textContent=lvl;
+            driftPct.textContent=Math.round(drift)+'% diluted';
+
+            var c=COPY[mode];
+            reframeTag.textContent=c.tag;
+            reframeBody.innerHTML=c.fn(n, sharePct.toFixed(sharePct<10?1:0)+'%', drift);
+        }
+
+        slider.addEventListener('input', render);
+
+        document.getElementById('mBiz').addEventListener('click', function() {
+                mode='biz'; this.setAttribute('aria-pressed', 'true');
+                document.getElementById('mDev').setAttribute('aria-pressed', 'false'); render();
+            });
+
+        document.getElementById('mDev').addEventListener('click', function() {
+                mode='dev'; this.setAttribute('aria-pressed', 'true');
+                document.getElementById('mBiz').setAttribute('aria-pressed', 'false'); render();
+            });
+
+        // ---- compare numbers ----
+        var sprawl=cumulative(50); // 50 turns, one thread
+        var explore=cumulative(15); // exploration
+        var summ=ctxAt(15)+700; // one summarise call (~history in + summary out)
+        var exec=cumulative(12, SYS+600); // fresh thread seeded with 600-token anchor
+        var sliced=explore+summ+exec;
+        document.getElementById('sprawlTok').textContent=fmt(sprawl);
+        document.getElementById('sliceTok').textContent=fmt(sliced);
+        document.getElementById('savingPct').textContent=Math.round((1-sliced/sprawl)*100)+'%';
+
+        render();
+    })();
+</script></body></html>
