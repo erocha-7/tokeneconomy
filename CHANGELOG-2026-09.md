@@ -97,16 +97,25 @@ Memory tool + context editing = **39%** over baseline; **context editing alone =
 
 ---
 
-## 4. One structural improvement to consider
+## 4. Structural change: Level 3 now models a 1M window — DONE
 
-**Level 3's capacity bar is now a weaker argument than its cost argument.** At a 200K window, 55K of connector definitions was ~27% of your room — a visceral bar. At 1M default, it's ~5%, and the demo's shrinking-bar visual undersells the point.
+**Level 3's capacity bar was the weakest of its three arguments, so it has been demoted rather than hidden.** At a 200K window, 55K of connector definitions was ~27% of your room — a visceral bar. The track now models the **1M default** (Opus 5, Sonnet 5, Opus 4.6+, Sonnet 4.6), where the same stack is **~5.5%** and every connector switched on still stays **under 14%**.
 
-The fix isn't to hide it — it's to re-order the argument:
-1. Those 55K tokens are **re-read and re-billed on every turn** (dollars, not capacity).
-2. Selection accuracy still degrades **above 30–50 tools**, regardless of window size.
-3. Capacity is the *third* reason now, not the first.
+That is deliberately unflattering to the bar, and **that is the point.** The argument is now ordered:
 
-This is a stronger, more defensible Level 3 than the June version — and pre-empts the "but I have a million tokens" heckle, the same way Level 2 already pre-empts it.
+1. Those 55K tokens are **re-read and re-billed on every turn** — cost scales with conversation length, not capacity. Window size does not touch this.
+2. Selection still degrades **above 30–50 tools**, regardless of how much room you have.
+3. Capacity is the *third* reason now, not the first — and the platform took it away from you.
+
+What changed in the demo to keep it coherent at 1M:
+- Window `200000` → `1000000`; scale reads 0 / 250K / 500K / 750K / 1M.
+- **Hero framing moved from window fraction to absolute load.** The warn state now trips on tokens resident (≥75K), not on a window percentage that can no longer reach 50%.
+- **Business-lens bullets rewritten.** The old copy branched on window fraction and would have said "plenty of room" in every state — true at 1M, but it argues against the level. It now leads with the recurring charge.
+- **Reclaim readout re-based:** "% of the window handed back" (a rounding error at 1M) → **"% of the pre-prompt load removed."** Both fixes on now reads a satisfying **88%**.
+- **Removed a fabricated metric.** The architect lens displayed "Tool-select accuracy 80%" from a formula descended from the retired 79.5%→88.1% pair — an invented number shown as fact, and inconsistent with cutting that claim from the sourcing note. It now reports **tools available against the documented 30-tool threshold**.
+- **Tool Search modelled from the published figure:** was a flat 500-token residual (unsourced); now a 15% residual, which is what ">85% reduction" actually says.
+
+This is a stronger, more defensible Level 3 than the June version — and it pre-empts the "but I have a million tokens" heckle instead of walking into it.
 
 ---
 
@@ -119,10 +128,12 @@ This is a stronger, more defensible Level 3 than the June version — and pre-em
 | `speech-notes.md` | Updated — talking points, model tiers, Q&A re-answered |
 | `Level1.html` | Model picker + rates → Opus 5 / Sonnet 5 / Haiku 4.5; tokenizer note |
 | `Level2.html` | 500K-chat claim → 1M default + rolling FIFO |
-| `Level3.html` | 200K window scale → 1M; 55K re-attributed to a five-server stack |
+| `Level3.html` | Rescaled to the **1M default window** (see section 4); 55K re-attributed to a five-server stack; fabricated accuracy metric replaced with the documented 30-tool threshold |
 | `Level4.html` | Rate table, calculator model data, cache minimums, Fable 5.1 cache-read exception |
 | `Level5.html` | Cost meter models, SDK flag names, real-vs-illustrative footnote |
 | `index.html` | Footer date |
 | `ClaudeCodeBrief.md` | Footer string + source-of-truth date reference |
 
-**Still to do by hand (judgment calls, not facts):** decide whether Level 3's demo bar should be rescaled to 1M or kept at 200K with a "Haiku / Sonnet 4.5 tier" label; decide whether Fable 5.1 earns a fourth routing tier on the Level 4 diagram or stays a footnote.
+**Still to do by hand (judgment calls, not facts):** decide whether Fable 5.1 earns a fourth routing tier on the Level 4 diagram or stays a footnote.
+
+**Resolved:** Level 3's bar is rescaled to the 1M default — see section 4.

@@ -573,7 +573,7 @@
         <div class="big-read">
           <div>
             <div class="big-num" id="bigNum">0</div>
-            <div class="big-sub">tokens spent before your first prompt · of 200,000</div>
+            <div class="big-sub">tokens spent before your first prompt · of 1,000,000 <span style="opacity:.65">(Opus 5 / Sonnet 5 default)</span></div>
           </div>
         </div>
         <div class="pct-chip" id="pctChip">0% gone</div>
@@ -587,7 +587,7 @@
         <div class="seg-fill seg-manual" id="segManual" style="width:0;left:0"></div>
         <div class="baseline-mark" id="baseMark" style="left:0;display:none"></div>
       </div>
-      <div class="track-scale"><span>0</span><span>50K</span><span>100K</span><span>150K</span><span>200K window (Haiku 4.5 tier)</span></div>
+      <div class="track-scale"><span>0</span><span>250K</span><span>500K</span><span>750K</span><span>1M window · default</span></div>
 
       <div class="legend">
         <span><i class="swatch sw-tools"></i> Connector / tool definitions</span>
@@ -613,7 +613,7 @@
           </div>
           <div class="stat">
             <div class="k" id="statK2">Room left</div>
-            <div class="v good" id="statV2">200,000</div>
+            <div class="v good" id="statV2">1,000,000</div>
           </div>
         </div>
         <ul class="bullets" id="bullets"></ul>
@@ -671,14 +671,16 @@
       <div class="foot">
         <b>Sourcing (re-verified Sep 2026).</b> The ≈<b>55,000 tokens</b> figure is Anthropic's published number for a <b>five-server MCP stack</b> — GitHub, Slack, Sentry, Grafana and Splunk together — <b>not for GitHub alone</b>. The per-server split shown here is illustrative and sums to that total. Tool Search's <b>&gt;85% reduction</b> is published; it is <b>default-on in Claude Code but opt-in on the API</b> (you declare the search tool and set <code>defer_loading: true</code>). Docs put tool-selection degradation above <b>30–50 available tools</b> — the older 79.5%→88.1% accuracy pair was measured on Opus 4.5 and is no longer published, so it has been removed.<br>
         Base overhead is small and now published per model: with at least one tool present you pay a tool-use system prompt of <b>286 tokens on Opus 5</b>, 354 on Sonnet 5, 496 on Haiku 4.5 — definitions, not scaffolding, are the tax.<br>
-        <b>Read the bar as cost, not capacity.</b> This track models a <b>200K</b> window (Haiku 4.5 / Sonnet 4.5). On the 1M-default models — Opus 5, Sonnet 5, Opus 4.6+, Sonnet 4.6 — the same 55K stack is only ~5% of the window, so "you're out of room" is the <i>weakest</i> version of this argument. The two that survive a big window: those tokens are <b>re-read and re-billed every turn</b>, and selection accuracy still degrades past 30–50 tools. Light setups (1–2 connectors) feel little of this — the tax scales with the stack.
+        <b>Read the bar as cost, not capacity.</b> This track models the <b>1M</b> default window (Opus 5, Sonnet 5, Opus 4.6+, Sonnet 4.6 — no beta header, no long-context premium; Haiku 4.5 and Sonnet 4.5 stay at 200K). That is deliberately unflattering to the bar: a 55K stack is only ~5.5% of 1M, and even every connector switched on stays under 14%. <b>That is the honest picture, and it is the point.</b> "You're out of room" was the <i>weakest</i> version of this argument and the platform has now taken it away. The two that survive a big window: those tokens are <b>re-read and re-billed on every turn</b> — so the cost scales with conversation length, not with capacity — and <b>selection still degrades past 30–50 tools</b> regardless of how much room you have. Light setups (1–2 connectors) feel little of this; the tax scales with the stack.
       </div>
     </div>
 
   </div>
 
   <script>
-    const WINDOW = 200000;
+    // 1M is the default window on Opus 5, Sonnet 5, Opus 4.6+ and Sonnet 4.6:
+    // no beta header, no long-context premium. (Haiku 4.5 / Sonnet 4.5 remain 200K.)
+    const WINDOW = 1000000;
 
     const connectors = [
         // Anthropic publishes ~55,000 tokens of definitions for this five-server stack
@@ -709,7 +711,9 @@
     function sumTools() { return connectors.filter(c => c.on).reduce((a, c) => a + c.tokens, 0); }
     function sumManual() { return manual.filter(m => m.on).reduce((a, m) => a + m.tokens, 0); }
 
-    function effectiveTools() { return toolSearch ? (sumTools() > 0 ? 500 : 0) : sumTools(); }
+    // Docs: tool search "typically reduces this by over 85 percent", loading only the
+    // 3-5 tools a request needs. Model that as a 15% residual rather than a flat figure.
+    function effectiveTools() { return toolSearch ? Math.round(sumTools() * 0.15) : sumTools(); }
     function effectiveManual() { return pruned ? (sumManual() > 0 ? 1500 : 0) : sumManual(); }
 
     function baselineConsumed() { return sumTools() + sumManual(); }
@@ -775,7 +779,9 @@
         tween(document.getElementById('bigNum'), cons);
         const chip = document.getElementById('pctChip');
         chip.textContent = Math.round(pct * 100) + '% gone';
-        chip.classList.toggle('warn', pct >= 0.5);
+        // At a 1M window, capacity is no longer the alarming variable - the recurring
+        // per-turn re-billing is. Warn on absolute load, not on window fraction.
+        chip.classList.toggle('warn', cons >= 75000);
 
         /* stats + bullets per lens */
         const dimNote = document.getElementById('connNote');
@@ -783,7 +789,7 @@
             document.getElementById('conseqTitle').textContent = 'What this costs you';
             document.getElementById('statK1').textContent = 'Context gone';
             document.getElementById('statV1').textContent = Math.round(pct * 100) + '%';
-            document.getElementById('statV1').className = 'v' + (pct >= 0.5 ? ' bad' : '');
+            document.getElementById('statV1').className = 'v' + (cons >= 75000 ? ' bad' : '');
             document.getElementById('statK2').textContent = 'Room for your work';
             document.getElementById('statV2').textContent = fmt(left);
             document.getElementById('statV2').className = 'v good';
@@ -793,11 +799,13 @@
             document.getElementById('conseqTitle').textContent = 'Architect readout';
             document.getElementById('statK1').textContent = 'Pre-prompt load';
             document.getElementById('statV1').textContent = fmt(cons);
-            document.getElementById('statV1').className = 'v' + (pct >= 0.5 ? ' bad' : '');
-            document.getElementById('statK2').textContent = 'Tool-select accuracy';
-            const acc = accuracy();
-            document.getElementById('statV2').textContent = acc + '%';
-            document.getElementById('statV2').className = 'v' + (acc >= 86 ? ' good' : (acc < 80 ? ' bad' : ''));
+            document.getElementById('statV1').className = 'v' + (cons >= 75000 ? ' bad' : '');
+            // Docs give a threshold, not a percentage: selection degrades past 30-50 tools.
+            // Report the count against that threshold instead of inventing an accuracy figure.
+            document.getElementById('statK2').textContent = 'Tools available · degrades past 30';
+            const nt = toolCount();
+            document.getElementById('statV2').textContent = nt + (toolSearch ? ' (on demand)' : '');
+            document.getElementById('statV2').className = 'v' + (toolSearch || nt <= 30 ? ' good' : (nt > 50 ? ' bad' : ''));
             document.getElementById('bullets').innerHTML = archBullets(pct, cons);
             dimNote.textContent = '// Definitions sit in the cached system-prefix. Caching amortises $, but the context space is gone regardless — and more tools dilute selection.';
         }
@@ -805,27 +813,34 @@
         /* reclaim */
         const reclaimed = Math.max(0, base - cons);
         tween(document.getElementById('reclaimNum'), reclaimed);
-        document.getElementById('reclaimPct').textContent = `tokens · ${Math.round(reclaimed / WINDOW * 100)}% of the window handed back`;
+        // % of the pre-prompt load removed is the meaningful number at a 1M window;
+        // % of the window would read as a rounding error.
+        const cut = base > 0 ? Math.round(reclaimed / base * 100) : 0;
+        document.getElementById('reclaimPct').textContent = `tokens · ${cut}% of the pre-prompt load removed`;
     }
 
-    function accuracy() {
-        if (toolSearch) return 88;
-        const n = connectors.filter(c => c.on).length;
-        return Math.max(72, Math.round(88 - Math.max(0, n) * 1.6));
+    // Approximate tool count behind the enabled connectors, for comparison against the
+    // documented 30-50 degradation threshold. Illustrative per-server counts.
+    const TOOLS_PER_CONN = 19;
+    function toolCount() {
+        return connectors.filter(c => c.on).length * TOOLS_PER_CONN;
     }
 
     function bizBullets(pct, left) {
         const out = [];
-        if (pct >= 0.5) out.push(`<li><b>You're past half-empty before you start.</b> Replies slow down and you hit your limits sooner.</li>`);
-        else if (pct >= 0.25) out.push(`<li><b>A quarter of the desk is already covered.</b> Fine today, tight by turn 20.</li>`);
-        else out.push(`<li class="good"><b>Plenty of room.</b> The model can hold your whole task in focus.</li>`);
+        // On a 1M window, "you're running out of room" is the weakest version of this
+        // argument. Lead with the recurring charge, which window size does not touch.
+        const cons = consumed();
+        if (cons >= 75000) out.push(`<li><b>${fmt(cons)} tokens billed before you type</b> — and again on every turn after that. It's rent, not a one-off.</li>`);
+        else if (cons >= 30000) out.push(`<li><b>${fmt(cons)} tokens of standing overhead</b>, re-read every turn. Small per turn, real per month.</li>`);
+        else out.push(`<li class="good"><b>Lean setup.</b> Barely any standing overhead — this is what you want.</li>`);
         out.push(`<li>You're paying rent on connectors you may not be using this session.</li>`);
-        if (pct >= 0.4) out.push(`<li>Less space = vaguer summaries and more "drift" off your instructions.</li>`);
+        out.push(`<li class="${pct >= 0.25 ? '' : 'good'}"><b>Room is no longer the scarce thing</b> — this is ${Math.round(pct * 100)}% of a 1M window. The bill and the model's focus are.</li>`);
         return out.join('');
     }
     function archBullets(pct, cons) {
         const out = [];
-        out.push(`<li>${Math.round(pct * 100)}% of a 200K window consumed at <code>t=0</code>, re-read every turn.</li>`);
+        out.push(`<li><b>${fmt(cons)} tokens</b> resident at <code>t=0</code> — ${Math.round(pct * 100)}% of a 1M window, but <b>re-read and re-billed every turn</b>. The cost scales with turns, not with window size.</li>`);
         if (!toolSearch && connectors.filter(c => c.on).length >= 4)
             out.push(`<li><b>Tool-selection accuracy degrades</b> as definitions pile up — fewer, scoped tools choose better.</li>`);
         else
