@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Getting Started with Claude Cowork · The Token Economy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#14130F; --ink-2:#1C1A14; --ink-3:#23211A; --line:#332F25;
+  --bone:#EFE9DC; --bone-dim:#A39B88;
+  --amber:#E8A33D; --rust:#C75B39; --teal:#5FB8A6; --teal-deep:#2C5E57;
+  --disp:'Bricolage Grotesque',system-ui,sans-serif;
+  --body:'IBM Plex Sans',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--ink); color:var(--bone); font-family:var(--body);
+  -webkit-font-smoothing:antialiased; line-height:1.6;
+  background-image:
+    radial-gradient(circle at 15% -8%, rgba(95,184,166,.08), transparent 45%),
+    radial-gradient(circle at 90% 4%, rgba(232,163,61,.06), transparent 40%);
+}
+.wrap{max-width:1080px;margin:0 auto;padding:clamp(20px,4vw,54px) clamp(16px,4vw,40px) 80px}
+
+/* ---------- header ---------- */
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+h1{font-family:var(--disp);font-weight:800;font-size:clamp(34px,6vw,60px);line-height:1.02;letter-spacing:-.02em;margin-bottom:14px}
+h1 em{font-style:normal;color:var(--teal)}
+.sub{font-size:clamp(15px,1.6vw,18px);color:var(--bone-dim);max-width:66ch}
+.sub b{color:var(--bone);font-weight:600}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+.pill{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  border:1px solid var(--line);background:var(--ink-2);color:var(--bone-dim);padding:6px 11px;border-radius:99px}
+.pill b{color:var(--teal);font-weight:600}
+
+/* ---------- sections ---------- */
+section{margin-top:clamp(38px,5vw,62px)}
+.sec-head{display:flex;align-items:baseline;gap:14px;padding-bottom:12px;margin-bottom:22px;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);font-size:12px;color:var(--amber);letter-spacing:.14em}
+.sec-title{font-family:var(--disp);font-weight:700;font-size:clamp(21px,2.8vw,30px);letter-spacing:-.01em}
+h3{font-family:var(--disp);font-weight:700;font-size:17px;margin:26px 0 10px;letter-spacing:-.005em}
+p{margin-bottom:13px;max-width:76ch}
+p:last-child{margin-bottom:0}
+a{color:var(--teal)}
+
+/* ---------- say-this callout ---------- */
+.say{border-left:3px solid var(--amber);background:linear-gradient(90deg,rgba(232,163,61,.07),transparent 70%);
+  padding:16px 20px;border-radius:0 6px 6px 0;margin:18px 0}
+.say .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--amber);display:block;margin-bottom:8px}
+.say p{font-size:16.5px;color:var(--bone);max-width:70ch}
+
+/* ---------- tables ---------- */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--ink-2);margin:18px 0}
+table{width:100%;border-collapse:collapse;font-size:14px;min-width:520px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);background:var(--ink-3);font-weight:500}
+td b{color:var(--bone)}
+td.t{font-family:var(--mono);font-size:12.5px;color:var(--teal);white-space:nowrap}
+.do-dont td:first-child{border-right:1px solid var(--line)}
+.do-dont th:first-child{color:var(--teal)}
+.do-dont th:last-child{color:var(--rust)}
+
+/* ---------- cards ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:18px 0}
+.card{border:1px solid var(--line);background:var(--ink-2);border-radius:8px;padding:16px 17px}
+.card .ic{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:8px}
+.card h4{font-family:var(--disp);font-weight:700;font-size:15.5px;margin-bottom:7px}
+.card p{font-size:13.5px;color:var(--bone-dim);margin:0}
+.card p b{color:var(--bone)}
+
+/* ---------- mode ladder ---------- */
+.modes{display:grid;gap:10px;margin:18px 0}
+.mode{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;
+  border:1px solid var(--line);background:var(--ink-2);border-radius:8px;padding:14px 16px;border-left-width:3px}
+.mode.m1{border-left-color:var(--teal)}
+.mode.m2{border-left-color:var(--amber)}
+.mode.m3{border-left-color:var(--rust)}
+.mode .nm{font-family:var(--mono);font-size:13px;font-weight:600;min-width:74px}
+.mode.m1 .nm{color:var(--teal)} .mode.m2 .nm{color:var(--amber)} .mode.m3 .nm{color:var(--rust)}
+.mode .was{display:block;font-size:9.5px;letter-spacing:.08em;color:var(--bone-dim);text-transform:uppercase;margin-top:3px;font-weight:400}
+.mode .bd{font-size:13.5px;color:var(--bone-dim)}
+.mode .bd b{color:var(--bone)}
+
+/* ---------- steps ---------- */
+ol.steps{list-style:none;counter-reset:s;margin:18px 0}
+ol.steps li{counter-increment:s;position:relative;padding-left:38px;margin-bottom:13px;font-size:14.5px;color:var(--bone-dim);max-width:76ch}
+ol.steps li::before{content:counter(s);position:absolute;left:0;top:0;width:25px;height:25px;border-radius:50%;
+  border:1px solid var(--teal-deep);background:var(--ink-3);color:var(--teal);
+  font-family:var(--mono);font-size:11.5px;display:flex;align-items:center;justify-content:center}
+ol.steps li b{color:var(--bone)}
+
+/* ---------- prompt example ---------- */
+.prompt{border:1px solid var(--teal-deep);background:var(--ink-3);border-radius:8px;padding:16px 18px;margin:16px 0}
+.prompt .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.prompt .txt{font-family:var(--mono);font-size:13px;line-height:1.75;color:var(--bone);white-space:pre-wrap}
+
+/* ---------- injection panel ---------- */
+.warn-panel{border:1px solid var(--rust);background:linear-gradient(180deg,rgba(199,91,57,.09),transparent);
+  border-radius:8px;padding:18px 20px;margin:20px 0}
+.warn-panel .lbl{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--rust);margin-bottom:10px}
+.warn-panel h4{font-family:var(--disp);font-weight:700;font-size:17px;margin-bottom:10px}
+.cond{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;margin:16px 0}
+.cond .c{border:1px solid var(--line);background:var(--ink-2);border-radius:7px;padding:12px 14px;font-size:13.5px}
+.cond .c b{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--rust);margin-bottom:6px}
+.cond .amp{font-family:var(--disp);font-weight:800;font-size:19px;color:var(--rust)}
+@media(max-width:640px){.cond{grid-template-columns:1fr}.cond .amp{text-align:center}}
+
+/* ---------- checklist ---------- */
+ul.check{list-style:none;margin:16px 0}
+ul.check li{position:relative;padding-left:28px;margin-bottom:11px;font-size:14.5px;color:var(--bone-dim);max-width:76ch}
+ul.check li::before{content:"☐";position:absolute;left:0;top:-1px;color:var(--teal);font-size:15px}
+ul.check li b{color:var(--bone)}
+
+/* ---------- close ---------- */
+.close-q{border:1px solid var(--line);background:var(--ink-2);border-radius:10px;padding:clamp(20px,3vw,30px);margin-top:26px}
+.close-q p{font-family:var(--disp);font-weight:500;font-size:clamp(17px,2.2vw,22px);line-height:1.42;color:var(--bone);max-width:60ch;margin:0}
+
+/* ---------- footer ---------- */
+footer{margin-top:52px;padding-top:20px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--bone-dim);line-height:1.85}
+footer a{color:var(--bone-dim)}
+footer b{color:var(--bone)}
+code{font-family:var(--mono);font-size:.92em;background:var(--ink-3);border:1px solid var(--line);
+  padding:1px 5px;border-radius:3px;color:var(--amber)}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Appendix · Getting Started</div>
+    <h1>Working with <em>Claude Cowork</em></h1>
+    <p class="sub">Everything so far has been about spending tokens well when <b>you</b> are driving. Cowork is what happens when you hand the driving over — you describe an outcome and it works through the steps. Same disciplines, higher stakes.</p>
+    <div class="meta-row">
+      <span class="pill">speaking time · <b>7–8 min</b></span>
+      <span class="pill">audience · <b>anyone on a paid plan</b></span>
+      <span class="pill">verified · <b>Sep 2026</b></span>
+    </div>
+  </header>
+
+  <!-- ============ AT A GLANCE ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">00</span><h2 class="sec-title">At a glance</h2></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Time</th><th>Topic</th><th>Main message</th></tr></thead>
+        <tbody>
+          <tr><td class="t">0:00–1:00</td><td><b>What it is</b></td><td>Cowork completes multi-step work instead of only answering questions.</td></tr>
+          <tr><td class="t">1:00–2:30</td><td><b>Setup</b></td><td>Select Cowork, give it only the files and tools it needs, and choose an approval mode.</td></tr>
+          <tr><td class="t">2:30–4:30</td><td><b>How to use it</b></td><td>Describe the outcome, provide context and boundaries, then review its plan.</td></tr>
+          <tr><td class="t">4:30–6:30</td><td><b>Best practices</b></td><td>Start small, limit access, supervise important actions, and check the result.</td></tr>
+          <tr><td class="t">6:30–7:30</td><td><b>Example</b></td><td>Demonstrate one clear, low-risk task.</td></tr>
+          <tr><td class="t">7:30–8:00</td><td><b>Close</b></td><td>Treat Cowork like a capable colleague whose work still needs review.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ 1 · WHAT IS IT ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">What is Claude Cowork?</h2></div>
+
+    <div class="say">
+      <span class="lbl">Say</span>
+      <p>Claude Cowork is a task-completion mode inside Claude. Regular Chat mainly gives us answers. Cowork can take a goal, work through several steps, use approved files and tools, and return a finished document, spreadsheet, presentation, research summary, or organised set of files. We explain the result we need, and Cowork plans how to produce it.</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Chat</th><th>Cowork</th></tr></thead>
+        <tbody class="do-dont">
+          <tr><td>“Tell me how to do this.”</td><td>“Complete this task for me.”</td></tr>
+          <tr><td>Best for questions and quick drafts.</td><td>Best for multi-step work, files, research, and finished outputs.</td></tr>
+          <tr><td>Usually works one response at a time.</td><td>Can plan, execute several steps, and continue while we step away.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><b>The one-line version for a sceptical room:</b> Chat is where you think; Cowork is where the work lands. If the answer to your request is a <em>file</em> rather than a paragraph, that's a Cowork task.</p>
+  </section>
+
+  <!-- ============ 2 · SETUP ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">What do I need to set it up?</h2></div>
+
+    <div class="say">
+      <span class="lbl">Say</span>
+      <p>First, we need a paid Claude plan. We can start Cowork from Claude on desktop, web, or mobile — though which surfaces you get depends on the plan and on company settings. For direct access to local files, the browser, or the computer, the Claude Desktop app must be installed, open and connected. Sessions themselves run in the cloud; the desktop app is the bridge to your machine.</p>
+    </div>
+
+    <h3>Where Cowork is available</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Surface</th><th>Plans</th></tr></thead>
+        <tbody>
+          <tr><td class="t">Desktop — macOS</td><td>All paid plans</td></tr>
+          <tr><td class="t">Desktop — Windows</td><td>All paid plans</td></tr>
+          <tr><td class="t">Web — claude.ai</td><td>Pro, Max, Team; Enterprise where enabled</td></tr>
+          <tr><td class="t">Mobile — iOS / Android</td><td>Pro, Max, Team; Enterprise where enabled</td></tr>
+          <tr><td class="t">Chrome side panel</td><td>Max, Team, Pro (rolling out); Enterprise where enabled</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><b>Worth flagging to an enterprise audience:</b> on Enterprise, web and mobile Cowork are <em>enabled by your admin</em>, not on by default. If it isn't there, that's a settings question, not a licence question.</p>
+
+    <h3>Basic setup</h3>
+    <ol class="steps">
+      <li>Open Claude and select <b>Cowork</b> beside the message box.</li>
+      <li>Create a dedicated working folder — something like <code>Claude Cowork</code> — and place only the relevant <b>copies</b> of files inside it.</li>
+      <li>Connect only the folders, apps and services the task actually requires.</li>
+      <li>Add preferred tone or output rules under <b>Settings → Cowork</b>, then <b>Edit</b> next to <b>Global instructions</b>.</li>
+      <li>Begin in <b>Manual</b> mode. Move to <b>Auto</b> only for familiar, low-risk work, and treat <b>Skip</b> as something you opt into deliberately, never as a default.</li>
+    </ol>
+
+    <h3>The three approval modes</h3>
+    <p>These were renamed — if your notes or a colleague's screenshot say “Ask before acting” or “Automatically approve”, they're describing the same three settings under older labels.</p>
+    <div class="modes">
+      <div class="mode m1">
+        <div class="nm">Manual<span class="was">was “ask before acting”</span></div>
+        <div class="bd">Claude asks before it acts. <b>Recommended for sensitive or unfamiliar work</b>, and the right place to start on day one.</div>
+      </div>
+      <div class="mode m2">
+        <div class="nm">Auto<span class="was">was “automatically approve”</span></div>
+        <div class="bd">Actions run without prompting you — but <b>Claude still reviews each action for safety first and blocks unsafe ones</b>. Auto is not the same as unguarded, which is worth saying out loud; people assume it is.</div>
+      </div>
+      <div class="mode m3">
+        <div class="nm">Skip<span class="was">was “skip all approvals”</span></div>
+        <div class="bd">No checks on Claude's actions. Reserve it for cases where every file, tool, source and action is fully trusted. <b>One backstop survives even here: deleting a file always requires your explicit permission.</b></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px">
+      <div class="ic">Recommended first-day setup</div>
+      <h4>Dedicated folder · Manual mode · no sensitive files · one small test task</h4>
+      <p>If you change one thing after this talk, make it the dedicated folder. Almost every Cowork regret starts with “I pointed it at my whole drive.”</p>
+    </div>
+  </section>
+
+  <!-- ============ 3 · HOW TO USE IT ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">How do I use it?</h2></div>
+
+    <div class="say">
+      <span class="lbl">Say</span>
+      <p>A good Cowork request describes the finished result rather than every click. I give it five things: the goal, the source material, the output, the rules, and the review point.</p>
+    </div>
+
+    <h3>The five-part prompt formula</h3>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Part</th><th>What to provide</th></tr></thead>
+        <tbody>
+          <tr><td class="t">Goal</td><td>What must be accomplished?</td></tr>
+          <tr><td class="t">Sources</td><td>Which files, folders, websites or apps may it use?</td></tr>
+          <tr><td class="t">Output</td><td>What should it create, and where should it save it?</td></tr>
+          <tr><td class="t">Rules</td><td>What must it include, avoid, preserve or verify?</td></tr>
+          <tr><td class="t">Review</td><td>When must it pause or ask for approval?</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="prompt">
+      <div class="lbl">Example prompt · all five parts</div>
+      <div class="txt">Review the meeting notes in the selected folder. Create a one-page Word
+summary with decisions, owners, and deadlines. Do not change the original
+files and do not send anything. If an owner or date is unclear, mark it as
+"Needs confirmation." Show me the draft for review before finalizing it.</div>
+    </div>
+    <p>Read it back and point at each clause: <em>goal</em>, <em>sources</em>, <em>output</em>, then two <em>rules</em> — don't modify, don't send — and finally the <em>review</em> point. The negative rules are doing the most work. “Do not send anything” is the difference between a draft and an incident.</p>
+
+    <h3>Normal workflow</h3>
+    <ol class="steps">
+      <li>Give Cowork the task and the relevant source material.</li>
+      <li><b>Review its proposed approach</b> before it starts working.</li>
+      <li>Let it work — while watching for unexpected files, websites or actions.</li>
+      <li>Redirect it if the task begins to move outside the requested scope.</li>
+      <li><b>Check the final output</b> before sharing, publishing, sending or relying on it.</li>
+    </ol>
+  </section>
+
+  <!-- ============ 4 · BEST PRACTICES ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">Best practices</h2></div>
+
+    <div class="say">
+      <span class="lbl">Say</span>
+      <p>The main principle is simple: give Cowork enough access to complete the task, but no more. Start with reversible work, keep human review for important decisions, and increase autonomy only after the workflow is proven.</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Do</th><th>Avoid</th></tr></thead>
+        <tbody class="do-dont">
+          <tr><td>Start with a small, clearly defined task.</td><td>Beginning with a large or sensitive workflow.</td></tr>
+          <tr><td>Use a dedicated folder containing <b>copies</b>.</td><td>Giving access to an entire drive or confidential folders.</td></tr>
+          <tr><td>State the output format and success criteria.</td><td>Vague instructions such as “sort this out.”</td></tr>
+          <tr><td>Keep <b>Manual</b> for sensitive or unfamiliar work.</td><td>Using <b>Skip</b> for messages, purchases, financial work or important files.</td></tr>
+          <tr><td>Watch the overall task and stop unexpected behaviour.</td><td>Assuming every action or source is automatically safe.</td></tr>
+          <tr><td>Verify names, numbers, dates, citations and calculations.</td><td>Treating the first output as final without review.</td></tr>
+          <tr><td>Use Chat for simple questions, Cowork for multi-step work.</td><td>Spending Cowork usage on tasks that only need a quick answer.</td></tr>
+          <tr><td>Schedule only stable, low-risk tasks — and review every run.</td><td>Scheduling tasks that send messages or make consequential changes unattended.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="warn-panel">
+      <div class="lbl">The risk worth naming</div>
+      <h4>Prompt injection — and the two conditions it needs</h4>
+      <p>Cowork may read untrusted content from websites, email or documents. Instructions hidden in that content can try to redirect an AI agent. That's <b>prompt injection</b> — and the useful part is that it needs <b>both</b> of these at once:</p>
+      <div class="cond">
+        <div class="c"><b>Condition 1</b>Claude can read content from outside your trusted sources.</div>
+        <div class="amp">AND</div>
+        <div class="c"><b>Condition 2</b>Claude can take a consequential action.</div>
+      </div>
+      <p><b>Break either one and the attack has nowhere to land.</b> That is the whole defence, and it maps onto things you already control: narrow the folder and the connectors (breaks condition 1), or keep <b>Manual</b> mode on anything that sends, pays, publishes or deletes (breaks condition 2). Anthropic also runs content classifiers that scan untrusted content entering Claude's context and flag likely injections — a backstop, not a substitute for scoping the job.</p>
+    </div>
+
+    <p><b>Callback to Level 5:</b> this is the same argument as least privilege via a <code>PreToolUse</code> hook — the difference between “please don't” and “you can't.” Cowork's approval modes are that control, exposed for people who don't write code.</p>
+  </section>
+
+  <!-- ============ 5 · EXAMPLE ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">A 60-second example</h2></div>
+
+    <div class="say">
+      <span class="lbl">Say</span>
+      <p>Imagine I have ten meeting-note files. Instead of opening each one, I place copies in a dedicated folder and ask Cowork to identify decisions, actions, owners and deadlines. I tell it not to edit the originals, to flag missing information, and to produce one summary for my review. Cowork plans the work, reads the permitted files, prepares the summary, and shows me the result. I then verify the important details before distributing it.</p>
+    </div>
+
+    <p>This is the ideal shape of a first Cowork task — and every element is deliberate:</p>
+    <div class="cards">
+      <div class="card"><div class="ic">Input</div><h4>Multiple sources</h4><p>Ten files is enough to be tedious by hand — the work is <b>worth delegating</b>.</p></div>
+      <div class="card"><div class="ic">Process</div><h4>Several steps</h4><p>Read, extract, cross-reference, format. <b>Not a single question</b>, so Chat is the wrong tool.</p></div>
+      <div class="card"><div class="ic">Output</div><h4>One clear deliverable</h4><p>A named format in a known place. <b>You can tell instantly whether it worked.</b></p></div>
+      <div class="card"><div class="ic">Scope</div><h4>Limited access</h4><p>Copies in a dedicated folder. <b>Nothing consequential is reachable.</b></p></div>
+      <div class="card"><div class="ic">Safety</div><h4>Fully reversible</h4><p>Originals untouched, nothing sent. <b>The worst case is a wasted draft.</b></p></div>
+      <div class="card"><div class="ic">Control</div><h4>Human review at the end</h4><p>You check the details that matter <b>before</b> anyone else sees them.</p></div>
+    </div>
+  </section>
+
+  <!-- ============ 6 · CLOSE ============ -->
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><h2 class="sec-title">Closing line</h2></div>
+    <div class="close-q">
+      <p>“The easiest way to think about Claude Cowork is as a capable digital colleague: give it a clear outcome, the minimum access it needs, sensible boundaries, and a final review. Start small, supervise important work, and automate only after the process is reliable.”</p>
+    </div>
+
+    <h3>Final checklist — before starting any Cowork task</h3>
+    <ul class="check">
+      <li>Is the <b>goal and final output</b> clear?</li>
+      <li>Have I shared <b>only the files and tools needed</b>?</li>
+      <li>Have I <b>protected the originals</b> and excluded sensitive data?</li>
+      <li>Is the <b>approval mode</b> appropriate for the consequences?</li>
+      <li>Have I said what Cowork <b>must not do</b>?</li>
+      <li>Will <b>a person review the result</b> before it matters?</li>
+    </ul>
+  </section>
+
+  <footer>
+    <b>Verified 10 Sep 2026</b> against the Claude Help Center and product page. Plan/surface availability, the <b>Manual / Auto / Skip</b> mode names (and their former labels), the <b>Settings → Cowork → Global instructions</b> path, the desktop-app requirement for local file / browser / computer access, the safety review inside Auto mode, the file-deletion backstop in Skip mode, and the two-condition framing of prompt injection all come from the sources below.<br>
+    Availability changes fast and Enterprise surfaces depend on admin settings — <b>re-check the plan table before presenting to a new audience.</b><br><br>
+    [1] <a href="https://support.claude.com/en/articles/13345190-get-started-with-claude-cowork">Get started with Claude Cowork</a> · Claude Help Center<br>
+    [2] <a href="https://claude.com/product/cowork">Claude Cowork</a> · Anthropic<br>
+    [3] <a href="https://support.claude.com/en/articles/13364135-use-claude-cowork-safely">Use Claude Cowork safely</a> · Claude Help Center
+  </footer>
+
+</div>
+</body>
+</html>

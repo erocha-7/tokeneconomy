@@ -131,7 +131,8 @@ This is a stronger, more defensible Level 3 than the June version — and it pre
 | `Level3.html` | Rescaled to the **1M default window** (see section 4); 55K re-attributed to a five-server stack; fabricated accuracy metric replaced with the documented 30-tool threshold |
 | `Level4.html` | Rate table, calculator model data, cache minimums, Fable 5.1 cache-read exception |
 | `Level5.html` | Cost meter models, SDK flag names, real-vs-illustrative footnote |
-| `index.html` | Footer date |
+| `index.html` | Footer date; sixth tab added for the Cowork appendix (teal accent + divider, so it reads as non-level content) |
+| `Cowork.html` | **New** — "Working with Claude Cowork", a 7–8 min getting-started page for end users. Verified against the Claude Help Center; see below |
 | `ClaudeCodeBrief.md` | Footer string + source-of-truth date reference |
 
 **Resolved decisions:**
@@ -139,3 +140,27 @@ This is a stronger, more defensible Level 3 than the June version — and it pre
 - **Fable 5.1 stays a footnote; no fourth routing tier.** The routing ladder answers "what is the cheapest *sufficient* model?" and Fable answers a different question — hardest long-horizon work, correctness over cost. Putting it on the ladder would imply it's the top rung of a cost decision, which is the opposite of the level's argument. It now has one deliberate footnote in the Level 4 footer (what it is, $10/$50, why it's excluded, and its 0.025× cache-read quirk) plus a Q&A answer in the speech notes. Three tiers stay on the diagram: Haiku 4.5 → Sonnet 5 → Opus 5.
 
 **No open items.**
+
+---
+
+## 6. Added: Cowork getting-started page (`Cowork.html`)
+
+A standalone appendix page for end users — what Cowork is, how to set it up, the five-part prompt formula, best practices, a worked example, and a pre-flight checklist. It sits as a sixth tab in the shell, styled with the teal accent rather than amber so it reads as an appendix rather than a sixth level.
+
+**Three things in the source draft were out of date and were corrected against the Help Center:**
+
+| Draft said | Verified |
+|---|---|
+| Approval modes: "Manual approval" / "automatic approval" / "Skip all approvals" | Renamed to **Manual / Auto / Skip**. The old labels are shown as "was …" so a colleague's older screenshot still maps |
+| Auto mode implied as unguarded | **Auto still safety-reviews each action and blocks unsafe ones.** People assume otherwise — worth saying out loud |
+| Skip mode implied as no guardrails at all | **Deleting a file always requires explicit permission, even in Skip** |
+
+**Sharpened rather than corrected:**
+- **Prompt injection now uses the docs' two-condition framing** — it needs untrusted read access **and** a consequential action, simultaneously. Break either one and it has nowhere to land. That's actionable; "malicious instructions can redirect an agent" isn't.
+- **Plan/surface availability is now a table** (Desktop = all paid plans; Web/Mobile = Pro/Max/Team, Enterprise where enabled; Chrome side panel rolling out). Worth flagging that Enterprise web/mobile is admin-enabled — "it's missing" is usually a settings question, not a licence one.
+- Added that **sessions run in the cloud** and the desktop app is the bridge to local files.
+- Dropped the draft's "assumes Cloud Cowork means Claude Cowork" disambiguation note — an authoring artifact, not something to present.
+
+**Deliberate tie-in:** the injection section closes by mapping Cowork's approval modes onto Level 5's least-privilege argument — the same "please don't" vs "you can't" distinction, exposed for people who don't write code. That's what earns the page its place in this deck rather than living as a separate document.
+
+⚠️ **Availability changes fast and Enterprise surfaces depend on admin settings — re-check the plan table before presenting to a new audience.**
