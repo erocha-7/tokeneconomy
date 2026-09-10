@@ -312,6 +312,9 @@ And be honest about the ceiling:
 **"How do I know which model to use for a given task?"**
 > Default to Sonnet 5. Classification, extraction, routing — try Haiku. Multi-step reasoning, ambiguous planning, high stakes — Opus 5. But try one thing first: run the *better* model at **low effort**. Lower effort on a newer model often beats high effort on the older one, and you keep a single cache namespace.
 
+**"What about Fable 5.1 — shouldn't we just use the most capable model?"**
+> It's deliberately not on the routing ladder, and that's the answer. Routing asks "what's the cheapest model that's sufficient?" Fable 5.1 — $10 in, $50 out — answers a different question: the hardest long-horizon work, where correctness outranks cost. Reach for it when Opus 5 at max effort has already failed, not as the top rung of a cost decision. And if you do use it, its cache reads are 0.025× — 97.5% off, not 90% — so caching pays back even faster there.
+
 **"Is the newest model always the cheapest per job?"**
 > No — and this is the trap. Claude 4.7 and later use a tokenizer that emits about 30% more tokens for identical text. A lower per-million price can be partly eaten by a higher token count. Compare cost per completed task, and re-baseline with the token-counting endpoint.
 

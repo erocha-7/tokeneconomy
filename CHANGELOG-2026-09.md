@@ -134,6 +134,8 @@ This is a stronger, more defensible Level 3 than the June version — and it pre
 | `index.html` | Footer date |
 | `ClaudeCodeBrief.md` | Footer string + source-of-truth date reference |
 
-**Still to do by hand (judgment calls, not facts):** decide whether Fable 5.1 earns a fourth routing tier on the Level 4 diagram or stays a footnote.
+**Resolved decisions:**
+- **Level 3's bar is rescaled to the 1M default** — see section 4.
+- **Fable 5.1 stays a footnote; no fourth routing tier.** The routing ladder answers "what is the cheapest *sufficient* model?" and Fable answers a different question — hardest long-horizon work, correctness over cost. Putting it on the ladder would imply it's the top rung of a cost decision, which is the opposite of the level's argument. It now has one deliberate footnote in the Level 4 footer (what it is, $10/$50, why it's excluded, and its 0.025× cache-read quirk) plus a Q&A answer in the speech notes. Three tiers stay on the diagram: Haiku 4.5 → Sonnet 5 → Opus 5.
 
-**Resolved:** Level 3's bar is rescaled to the 1M default — see section 4.
+**No open items.**

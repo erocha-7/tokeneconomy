@@ -137,7 +137,7 @@ This consolidates the five separately-verified levels into one document so the d
 - **Haiku 4.5** — $1 / $5. Routing, classification, extraction. 200K context, old tokenizer.
 - **Sonnet 5** — **$2 / $10**. The default workhorse. **Cheaper than Sonnet 4.6's $3/$15**, with a 1M window.
 - **Opus 5** — $5 / $25. Reasoning that justifies the premium. 1M window.
-- *(Above the tier:* **Fable 5.1** *— $10 / $50, for the hardest long-horizon work.)*
+- *(Deliberately **not** a fourth tier:* **Fable 5.1** *— $10 / $50, 1M window. Routing asks "what is the cheapest **sufficient** model?"; Fable answers a different question — the hardest long-horizon work, correctness over cost. Reach for it when Opus 5 at `max` effort has already failed, not as the top rung of a cost decision.)*
 
 The mistake is still treating Opus as the default and everything else as a downgrade. Sonnet is the right default; you *escalate* when the task earns it.
 
