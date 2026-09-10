@@ -460,8 +460,8 @@
       <div class="control-group">
         <div class="control-label">Model (input price)</div>
         <div class="seg" id="modelSeg">
-          <button data-model="opus"   data-rate="5"  class="active">Opus 4.8<span class="sub">$5 / Mtok</span></button>
-          <button data-model="sonnet" data-rate="3"             >Sonnet 4.6<span class="sub">$3 / Mtok</span></button>
+          <button data-model="opus"   data-rate="5"  class="active">Opus 5<span class="sub">$5 / Mtok</span></button>
+          <button data-model="sonnet" data-rate="2"             >Sonnet 5<span class="sub">$2 / Mtok</span></button>
           <button data-model="haiku"  data-rate="1"             >Haiku 4.5<span class="sub">$1 / Mtok</span></button>
         </div>
       </div>
@@ -547,7 +547,7 @@
     <h2>How These Numbers Are Calculated</h2>
     <div class="row"><span class="k">PDF tokens</span><span class="v">extracted text + (pages × per-page image cost). Anthropic's PDF docs: each page is also rendered as an image at ~1,500–3,000 tokens — that image overhead is exactly what Markdown removes.</span></div>
     <div class="row"><span class="k">MD tokens</span><span class="v">real extracted text ÷ 4 (Anthropic's ~4-chars-per-token rule of thumb).</span></div>
-    <div class="row"><span class="k">$ cost</span><span class="v">tokens × input rate. Opus 4.8 $5 · Sonnet 4.6 $3 · Haiku 4.5 $1 per million (verified Jun 2026).</span></div>
+    <div class="row"><span class="k">$ cost</span><span class="v">tokens × input rate. Opus 5 $5 · Sonnet 5 $2 · Haiku 4.5 $1 per million (re-verified Sep 2026). Note: Claude 4.7 and later (Opus 5, Sonnet 5) use a newer tokenizer that emits <b>~30% more tokens</b> for the same text — Haiku 4.5 and Sonnet 4.6 use the previous one, so token counts are not comparable across generations.</span></div>
     <div class="row"><span class="k">$ basis</span><span class="v">API per-token pricing. On claude.ai (subscription) the same waste shows up as context saturation and usage caps, not a dollar bill.</span></div>
     <div class="row"><span class="k">Caveat</span><span class="v">Text-token estimate; not a byte-exact tokenizer. The order-of-magnitude gap is the point, and it's real.</span></div>
   </div>

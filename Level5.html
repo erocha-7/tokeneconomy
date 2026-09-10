@@ -737,7 +737,7 @@
         <div class="gov-step">
           <div class="n">01 — Stop the loop</div>
           <h3>Bound it before it starts</h3>
-          <p>Set <code>maxTurns</code> to a realistic ceiling. Wire a <code>SubagentStop</code> hook to detect convergence and halt early. Add <code>max_budget_usd</code> as the hard financial ceiling. Without these, a Draft↔Verify cycle that never converges runs until it's rate-limited — the overnight-bill scenario. The enforced limit is whatever you set; there is no magic safe number.</p>
+          <p>Set <code>maxTurns</code> to a realistic ceiling. Wire a <code>SubagentStop</code> hook to detect convergence and halt early. Add <code>maxBudgetUsd</code> as the financial ceiling (TypeScript SDK — the Python option is <code>max_budget_usd</code>; don't mix the two on one slide). Be precise about what it is: it trips when the SDK's own <b>client-side cost estimate</b> crosses your number — the same estimate as <code>total_cost_usd</code>, with documented accuracy caveats. A guardrail, not a billing-system wall; for a hard dollar cap you want a <b>Managed Agents session budget</b>. Without any of these, a Draft↔Verify cycle that never converges runs until it's rate-limited — the overnight-bill scenario. The enforced limit is whatever you set; there is no magic safe number.</p>
         </div>
         <div class="gov-step">
           <div class="n">02 — Scope each subagent</div>
@@ -763,7 +763,8 @@
           <ul>
             <li>An ungoverned loop can <b>burn through a budget overnight</b>. Stop-guards turn "shocking bill" into a known ceiling.</li>
             <li>A confirmation gate is your <b>audit trail</b>: nothing irreversible (emails, payments, record writes) happens without a logged human OK.</li>
-            <li><b>New as of today:</b> on subscription plans, Agent SDK usage now draws from a <em>separate</em> monthly credit pool — a runaway agent no longer silently eats your interactive limits.</li>
+            <li><b>Two kinds of budget, and only one is enforced:</b> a <em>task budget</em> (min 20,000 tokens) injects a countdown the model can see, so it paces itself and <em>lands gracefully</em> instead of being cut off — advisory. A <em>Managed Agents session budget</em> is dollar-denominated and <em>platform-enforced</em>. Task budgets prevent bad endings; session budgets prevent bad bills.</li>
+            <li><b>Agents now bill on two meters:</b> if Anthropic runs the loop (Managed Agents) you pay tokens at standard rates <em>plus <b>$0.08 per session-hour</b></em>, charged only while the session is <code>running</code> — idle time is free, and the Batch discount does not apply. Self-hosted, code execution gives each org <b>1,550 free container-hours/month</b>, then $0.05/hr.</li>
           </ul>
         </div>
         <div class="card arch">
@@ -780,11 +781,11 @@
 
     <footer>
       <div class="note">
-        <b>What's real vs. illustrative.</b> The unit prices driving the cost meter are current published rates — Haiku 4.5 $1/$5, Sonnet 4.6 $3/$15, Opus 4.8 $5/$25 per million in/out — and the cache-hit discount is 0.1× input. The SDK feature names (<span class="mono">maxTurns, max_budget_usd, SubagentStop, PreToolUse, permissionMode, subagents, automatic compaction, total_cost_usd</span>) are real and current. Per-run token volumes are realistic stand-ins, not measured from your stack — swap in your telemetry's real averages before quoting a number on stage. Turn-count "rules" (3–5 good, 10+ decompose) are heuristics, not platform constants; the enforced limit is whatever you set in <span class="mono">maxTurns</span>.
+        <b>What's real vs. illustrative (re-verified 10 Sep 2026).</b> The unit prices driving the cost meter are current published rates — Haiku 4.5 $1/$5, <b>Sonnet 5 $2/$10</b>, <b>Opus 5 $5/$25</b> per million in/out — and the cache-hit discount is 0.1× input (except Fable 5.1, at 0.025×). The SDK feature names (<span class="mono">maxTurns, maxBudgetUsd, SubagentStop, PreToolUse, permissionMode, subagents, total_cost_usd</span>) are real and current — <b>note the camelCase</b>: those are the TypeScript names, and Python uses <span class="mono">max_turns / max_budget_usd</span>. Server-side compaction is <b>opt-in beta</b> on the API (default trigger 150K input tokens), not automatic, and it <b>bills an extra sampling pass</b> itemised in <span class="mono">usage.iterations</span> — in Claude Code, auto-compact near the limit is the automatic one. The memory-tool figures (39% with context editing, 29% alone, 84% fewer tokens) come from Anthropic's <b>internal agentic-search eval</b> published on their blog, not a docs benchmark page. Per-run token volumes are realistic stand-ins, not measured from your stack — swap in your telemetry's real averages before quoting a number on stage. Turn-count "rules" (3–5 good, 10+ decompose) are heuristics, not platform constants; the enforced limit is whatever you set in <span class="mono">maxTurns</span>.
         <div class="src">
           <span class="pill">docs: Agent SDK · subagents</span>
           <span class="pill">docs: hooks · SubagentStop / PreToolUse</span>
-          <span class="pill">docs: Agent SDK credit (15 Jun 2026)</span>
+          <span class="pill">docs: task budgets · session budgets</span>
           <span class="pill">Building Effective Agents</span>
         </div>
       </div>
@@ -798,9 +799,10 @@
 
         /* ---- pricing (real per-M rates) ---- */
         var RATE = {
-            haiku:  { i: 1,  o: 5,  n: "Haiku 4.5"  },
-            sonnet: { i: 3,  o: 15, n: "Sonnet 4.6" },
-            opus:   { i: 5,  o: 25, n: "Opus 4.8"   }
+            // re-verified 10 Sep 2026 · platform.claude.com/docs/en/about-claude/pricing
+            haiku:  { i: 1,  o: 5,  n: "Haiku 4.5" },
+            sonnet: { i: 2,  o: 10, n: "Sonnet 5"  },
+            opus:   { i: 5,  o: 25, n: "Opus 5"    }
         };
         var MONTHLY = 8000; // tickets/mo for the owner-lens projection
 

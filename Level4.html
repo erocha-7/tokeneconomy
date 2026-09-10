@@ -688,14 +688,14 @@
         <h1>The <em>Cost Controller</em></h1>
         <p class="sub">You don't pay for answers. You pay for tokens. Two levers — <strong>routing</strong> the task to the right model, and <strong>caching</strong> the parts that never change — decide whether a workload bills like a coffee or a car payment.</p>
       </div>
-      <div class="meter-chip"><span class="pulse"></span> live rates · Jun 2026</div>
+      <div class="meter-chip"><span class="pulse"></span> live rates · Sep 2026</div>
     </header>
 
     <!-- CACHING EXPLAINER -->
     <div class="explainer">
       <div class="k">What is prompt caching — and when should you use it?</div>
       <h2>Caching discounts what you re-read. It charges more for the first write.</h2>
-      <p>Static content — a system prompt, a playbook, a tool set — can be marked cacheable. <b>Call 1 pays a write premium (1.25× input)</b>. Every repeat call reads the cached block at <b>0.1× input — 90% off</b>. Caching only nets out once the static block is re-read enough times to cover the write cost. A one-shot prompt pays <em>more</em>, not less. TTL default is 5 minutes, resetting on each read; a 1-hour option exists at 2× write cost. Minimum block size: 1,024 tokens (2,048 on Haiku — small blocks there silently fail to cache).</p>
+      <p>Static content — a system prompt, a playbook, a tool set — can be marked cacheable. <b>Call 1 pays a write premium (1.25× input)</b>. Every repeat call reads the cached block at <b>0.1× input — 90% off</b>. Caching only nets out once the static block is re-read enough times to cover the write cost. A one-shot prompt pays <em>more</em>, not less. TTL default is 5 minutes, resetting on each read; a 1-hour option exists at 2× write cost. Payback is exact: the 5-min write pays for itself after <b>one</b> read, the 1-hr write after <b>two</b>. The TTL clock runs from <b>request start</b>, not response end — a 4-minute streamed response leaves you ~1 minute to land the follow-up. Minimum block size is <b>per model and it moved in 2026</b>: <b>512</b> on Opus 5, <b>1,024</b> on Sonnet 5, <b>4,096 on Haiku 4.5</b> — below the floor, caching fails silently with no error.</p>
 
       <div class="payoff">
         <div class="payoff-card call1">
@@ -744,9 +744,9 @@
 
         <p class="ctl-title" style="margin-top:20px">3 · Route it</p>
         <div class="tier-row" id="tiers">
-          <div class="tier" data-t="haiku"><b><span class="dot" style="background:var(--teal)"></span>Haiku</b>$1 / $5</div>
-          <div class="tier" data-t="sonnet"><b><span class="dot" style="background:var(--sky)"></span>Sonnet</b>$3 / $15</div>
-          <div class="tier" data-t="opus"><b><span class="dot" style="background:var(--amber)"></span>Opus</b>$5 / $25</div>
+          <div class="tier" data-t="haiku"><b><span class="dot" style="background:var(--teal)"></span>Haiku 4.5</b>$1 / $5</div>
+          <div class="tier" data-t="sonnet"><b><span class="dot" style="background:var(--sky)"></span>Sonnet 5</b>$2 / $10</div>
+          <div class="tier" data-t="opus"><b><span class="dot" style="background:var(--amber)"></span>Opus 5</b>$5 / $25</div>
         </div>
         <p class="rec">Recommended for this workload: <b id="recName">Haiku 4.5</b></p>
 
@@ -805,12 +805,12 @@
               </thead>
               <tbody>
                 <tr><td class="haiku-c"><b>Haiku 4.5</b></td><td>$1.00</td><td>$5.00</td><td>$0.10</td><td>$1.25</td></tr>
-                <tr><td class="sonnet-c"><b>Sonnet 4.6</b></td><td>$3.00</td><td>$15.00</td><td>$0.30</td><td>$3.75</td></tr>
-                <tr><td class="opus-c"><b>Opus 4.x</b></td><td>$5.00</td><td>$25.00</td><td>$0.50</td><td>$6.25</td></tr>
+                <tr><td class="sonnet-c"><b>Sonnet 5</b></td><td>$2.00</td><td>$10.00</td><td>$0.20</td><td>$2.50</td></tr>
+                <tr><td class="opus-c"><b>Opus 5</b></td><td>$5.00</td><td>$25.00</td><td>$0.50</td><td>$6.25</td></tr>
               </tbody>
             </table>
             <p class="note">
-              All figures per million tokens (June 2026). Cache <b>read</b> = 0.1× input (the famous 90% off).
+              All figures per million tokens (re-verified Sep 2026). Cache <b>read</b> = 0.1× input (the famous 90% off) — with one exception: <b>Fable 5.1 reads at 0.025× ($0.25/M, 97.5% off)</b>. Batch API halves both columns: Sonnet 5 becomes $1.00/$5.00, Opus 5 $2.50/$12.50, Haiku $0.50/$2.50.
               Cache <b>write</b> = 1.25× input on the 5-min cache — so caching only wins once the static block is re-read across calls. We model <code>1 write + (calls−1) reads</code> per month.
               <br>Per call: <code>(static + variable)×input + output×output</code>; the static term swaps to cache rates when caching is on.
             </p>
@@ -824,7 +824,7 @@
       <section class="panel lever">
         <div class="k">Lever 01</div>
         <h3>Route to the right tier</h3>
-        <p>Defaulting every task to Opus is the costliest habit in the room. Most "medium" work belongs on Sonnet; routing/extraction belongs on Haiku. Opus is for reasoning that actually justifies the premium.</p>
+        <p>Defaulting every task to Opus is the costliest habit in the room. Most "medium" work belongs on <b>Sonnet 5</b> — which now costs <b>$2/$10</b>, down from Sonnet 4.6's $3/$15; routing/extraction belongs on Haiku. Opus 5 is for reasoning that actually justifies the premium.</p><p style="margin-top:10px"><b>Try the effort dial before you downgrade the model.</b> <code>output_config.effort</code> takes <code>low</code>→<code>max</code> (default <code>high</code>). Lower effort on a newer model often beats high effort on the previous generation — and a multi-model cascade <b>forfeits cache reuse</b>, because caches are model-scoped. One model, one cache namespace.</p>
         <div class="caveat" id="leverRouteNote">Try it: send the format job to Opus, then to Haiku.</div>
       </section>
       <section class="panel lever">
@@ -846,7 +846,7 @@
       </div>
 
       <div class="ribbon" aria-label="The hard rules">
-        <span class="chip"><b>1,024</b> min tok <span class="x">·</span> 2,048 on Haiku</span>
+        <span class="chip"><b>512</b> min tok Opus 5 <span class="x">·</span> 1,024 Sonnet 5 <span class="x">·</span> 4,096 Haiku 4.5</span>
         <span class="chip"><b>5 min</b> TTL default <span class="x">·</span> 1 hr optional (2× write)</span>
         <span class="chip"><b>≤ 4</b> breakpoints</span>
         <span class="chip"><b>exact-match</b> prefix</span>
@@ -868,7 +868,7 @@
         <div class="card">
           <div class="ic">Entry gate</div>
           <h4>A bulk discount, not a coupon</h4>
-          <p>Caching won't trigger below <b>1,024 tokens</b> (2,048 on Haiku). It's built for substantial playbooks, system instructions and tool sets — not one-line prompts. Small reference, no discount.</p>
+          <p>Caching won't trigger below that model's floor — <b>512 tokens on Opus 5</b>, <b>1,024 on Sonnet 5</b>, <b>4,096 on Haiku 4.5</b>. The floors <b>all moved in 2026</b> and Haiku is now the highest, not the lowest. It's built for substantial playbooks, system instructions and tool sets — not one-line prompts. Small reference, no discount.</p>
         </div>
         <div class="card">
           <div class="ic">Leverage</div>
@@ -918,7 +918,7 @@
       </div>
     </section>
 
-    <footer>Demo · Level 4 of The Token Economy · rates verified against Anthropic pricing, Jun 2026</footer>
+    <footer>Demo · Level 4 of The Token Economy · rates re-verified against Anthropic pricing, 10 Sep 2026 · not modelled here: fast mode on Opus 5 ($10/$50, ~2.5× output speed), <code>inference_geo:"us"</code> (1.1× on every category), and the ~30% token increase on the Claude 4.7+ tokenizer</footer>
   </div>
 
   <script>
@@ -926,9 +926,11 @@
         // per-MILLION-token rates -> per token
         const M = 1e6;
         const RATE = {
-            haiku:  { in: 1 / M, out: 5  / M, cr: .10 / M, cw: 1.25 / M, min: 2048, name: "Haiku 4.5" },
-            sonnet: { in: 3 / M, out: 15 / M, cr: .30 / M, cw: 3.75 / M, min: 1024, name: "Sonnet 4.6" },
-            opus:   { in: 5 / M, out: 25 / M, cr: .50 / M, cw: 6.25 / M, min: 1024, name: "Opus 4.x"  }
+            // re-verified 10 Sep 2026 against platform.claude.com/docs/en/about-claude/pricing
+            // `min` = minimum cacheable prefix, which changed on every model in 2026
+            haiku:  { in: 1 / M, out: 5  / M, cr: .10 / M, cw: 1.25 / M, min: 4096, name: "Haiku 4.5" },
+            sonnet: { in: 2 / M, out: 10 / M, cr: .20 / M, cw: 2.50 / M, min: 1024, name: "Sonnet 5"  },
+            opus:   { in: 5 / M, out: 25 / M, cr: .50 / M, cw: 6.25 / M, min:  512, name: "Opus 5"    }
         };
         // presets: [calls, static, variable, output, recommendedTier]
         const PRE = [

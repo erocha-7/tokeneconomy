@@ -7,7 +7,8 @@ Combine the 5 standalone Level demos (Levels 1–5) in this folder into **one ta
 
 ## Inputs (in this folder)
 - 5 working interactive HTML demos — one per Level. **Inventory them yourself** (`ls`, open each) rather than assuming filenames.
-- `token-economy-master-verified-notes.md` — verified copy and figures. **Do not invent numbers; source any new text from this file.**
+- `token-economy-master-verified-notes.md` — verified copy and figures (re-verified 10 Sep 2026). **Do not invent numbers; source any new text from this file.**
+- `CHANGELOG-2026-09.md` — what changed since the June 2026 run, which claims were cut, and what new material is worth a slide. Read this before touching any figure.
 - This brief is the complete specification. No other notes file exists — all change instructions are written below.
 
 ---
@@ -28,7 +29,7 @@ Combine the 5 standalone Level demos (Levels 1–5) in this folder into **one ta
 - **Tab bar:** `1 · Ingestion`, `2 · Threads`, `3 · Workspace`, `4 · Cost`, `5 · Agents`
 - **Design system:** Level 2 is the visual template for the whole series (warm-ink dark background, Bricolage Grotesque display, IBM Plex Mono for data, amber/teal accent pair). Read Level 2's CSS variables and replicate them in the shell header and in any rebuilt Level pages.
 - **Audience toggle label (global):** everywhere a Level says "Business Owner" change it to **"Chat User"**. "Builder" stays as-is.
-- **Footer:** "The Token Economy · verified Jun 2026"
+- **Footer:** "The Token Economy · re-verified Sep 2026"
 - Proper `role="tablist"` / `tab` / `tabpanel`, arrow-key nav, visible focus ring.
 - Works offline — no build step, fonts degrade to system stack.
 - Responsive; `prefers-reduced-motion` respected; no localStorage/sessionStorage.

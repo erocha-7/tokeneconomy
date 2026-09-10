@@ -587,7 +587,7 @@
         <div class="seg-fill seg-manual" id="segManual" style="width:0;left:0"></div>
         <div class="baseline-mark" id="baseMark" style="left:0;display:none"></div>
       </div>
-      <div class="track-scale"><span>0</span><span>50K</span><span>100K</span><span>150K</span><span>200K window</span></div>
+      <div class="track-scale"><span>0</span><span>50K</span><span>100K</span><span>150K</span><span>200K window (Haiku 4.5 tier)</span></div>
 
       <div class="legend">
         <span><i class="swatch sw-tools"></i> Connector / tool definitions</span>
@@ -629,7 +629,7 @@
           <span class="ck">✓</span>
           <span class="txt">
             <b>Enable Tool Search</b>
-            <small>Tool definitions load on demand instead of all upfront — the whole connector block collapses to a ~500-token lookup. <span class="src">GA, default-on in Claude Code · ~85% lighter.</span></small>
+            <small>Tool definitions load on demand instead of all upfront — the whole connector block collapses to the search tool plus the <b>3–5 tools</b> the request actually needs. <span class="src">Default-on in Claude Code, opt-in on the API · &gt;85% lighter (published).</span></small>
           </span>
         </button>
         <button class="action" id="actPrune" aria-pressed="false">
@@ -659,7 +659,7 @@
         <div class="step auto">
           <div class="n">02 — automated</div>
           <h4>Let Tool Search prune definitions</h4>
-          <p>The platform now lazy-loads tools. <b>Don't rebuild this</b> — know it's there, and stop fearing big tool libraries.</p>
+          <p>The platform now lazy-loads tools — <b>default-on in Claude Code, opt-in on the API</b>. <b>Don't rebuild this</b> — know it's there, and stop fearing big tool libraries. Worth switching on past <b>10 tools</b> or <b>10K tokens</b> of definitions; <code>defer_loading</code> leaves your cached prefix intact, so it composes with prompt caching.</p>
         </div>
         <div class="step">
           <div class="n">03 — manual</div>
@@ -669,8 +669,9 @@
       </div>
 
       <div class="foot">
-        <b>Sourcing.</b> GitHub MCP ≈ 55K tokens and Jira ≈ 17K are Anthropic's published figures; Tool Search (≈85% reduction, ~500-token overhead, GA &amp; default-on) and the 79.5%→88.1% tool-selection accuracy lift are from Anthropic engineering, 2025–26.<br>
-        Other connector and workspace token values are illustrative, in the same realistic range. A 200,000-token window is assumed. Light setups (1–2 connectors) feel little of this — the tax scales with the stack.
+        <b>Sourcing (re-verified Sep 2026).</b> The ≈<b>55,000 tokens</b> figure is Anthropic's published number for a <b>five-server MCP stack</b> — GitHub, Slack, Sentry, Grafana and Splunk together — <b>not for GitHub alone</b>. The per-server split shown here is illustrative and sums to that total. Tool Search's <b>&gt;85% reduction</b> is published; it is <b>default-on in Claude Code but opt-in on the API</b> (you declare the search tool and set <code>defer_loading: true</code>). Docs put tool-selection degradation above <b>30–50 available tools</b> — the older 79.5%→88.1% accuracy pair was measured on Opus 4.5 and is no longer published, so it has been removed.<br>
+        Base overhead is small and now published per model: with at least one tool present you pay a tool-use system prompt of <b>286 tokens on Opus 5</b>, 354 on Sonnet 5, 496 on Haiku 4.5 — definitions, not scaffolding, are the tax.<br>
+        <b>Read the bar as cost, not capacity.</b> This track models a <b>200K</b> window (Haiku 4.5 / Sonnet 4.5). On the 1M-default models — Opus 5, Sonnet 5, Opus 4.6+, Sonnet 4.6 — the same 55K stack is only ~5% of the window, so "you're out of room" is the <i>weakest</i> version of this argument. The two that survive a big window: those tokens are <b>re-read and re-billed every turn</b>, and selection accuracy still degrades past 30–50 tools. Light setups (1–2 connectors) feel little of this — the tax scales with the stack.
       </div>
     </div>
 
@@ -680,11 +681,17 @@
     const WINDOW = 200000;
 
     const connectors = [
-        { id: 'github', name: 'GitHub', meta: '93 tools · sourced', tokens: 55000, on: true },
-        { id: 'jira', name: 'Jira', meta: 'sourced', tokens: 17000, on: true },
+        // Anthropic publishes ~55,000 tokens of definitions for this five-server stack
+        // (GitHub, Slack, Sentry, Grafana, Splunk). The SET total is sourced; the
+        // per-server split below is illustrative and sums to 55,000.
+        { id: 'github', name: 'GitHub', meta: 'set sourced · split illustrative', tokens: 18000, on: true },
+        { id: 'splunk', name: 'Splunk', meta: 'set sourced · split illustrative', tokens: 13000, on: true },
+        { id: 'sentry', name: 'Sentry', meta: 'set sourced · split illustrative', tokens: 9000, on: true },
+        { id: 'grafana', name: 'Grafana', meta: 'set sourced · split illustrative', tokens: 8000, on: true },
+        { id: 'slack', name: 'Slack', meta: 'set sourced · split illustrative', tokens: 7000, on: true },
+        { id: 'jira', name: 'Jira', meta: 'illustrative', tokens: 17000, on: false },
         { id: 'salesforce', name: 'Salesforce', meta: 'illustrative', tokens: 20000, on: false },
         { id: 'drive', name: 'Google Drive', meta: 'illustrative', tokens: 12000, on: false },
-        { id: 'slack', name: 'Slack', meta: 'illustrative', tokens: 8000, on: false },
         { id: 'notion', name: 'Notion', meta: 'illustrative', tokens: 6000, on: false },
     ];
     const manual = [
